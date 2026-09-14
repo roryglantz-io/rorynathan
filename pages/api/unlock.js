@@ -1,4 +1,4 @@
-import { COOKIE, makeToken, safeEqual } from '../../lib/gate'
+import { COOKIE, makeToken, normalisePassword, safeEqual } from '../../lib/gate'
 
 const DAYS = 30
 
@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   const given = req.body?.password
   if (!given) return res.status(400).json({ error: 'Please enter the password.' })
 
-  if (!safeEqual(given, password)) {
+  if (!safeEqual(normalisePassword(given), normalisePassword(password))) {
     return res.status(401).json({ error: "That's not the password. Check the invitation, or ask us." })
   }
 
