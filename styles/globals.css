@@ -7,11 +7,17 @@
   --bg-alt:      #f2ece3;
   --surface:     #fffdfa;
   --ink:         #3c332a;
-  --ink-soft:    #6b5f51;
-  --ink-faint:   #a08f78;
+  --ink-soft:    #5c5144;
+  --ink-faint:   #7d6852;
   --rule:        #e2d9cc;
-  --accent:      #8a7355;
+  --accent:      #7a6144;
   --accent-deep: #5f4d38;
+
+  /* Every text color above clears WCAG AA (4.5:1) on all three backgrounds.
+     --ink-faint is the lightest tone that still does, and it carries real
+     content — addresses, dress code, form hints — so don't lighten it for
+     looks. Guest lists span every age and half of them read this outdoors
+     on a phone. */
 
   --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --sans:  'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
@@ -231,6 +237,12 @@ img { max-width: 100%; display: block; }
   margin-bottom: 8px;
 }
 .field__hint { font-size: 13px; color: var(--ink-faint); margin: 6px 0 0; }
+
+/* The header is sticky and 62px tall. Without this, a field that fails
+   validation gets scrolled to the very top of the viewport and sits *under*
+   the header — the guest sees the browser's "please fill this in" bubble
+   pointing at something they can't see. */
+input, select, textarea, .attendee, h2, h3 { scroll-margin-top: 84px; }
 
 input[type='text'], input[type='email'], select, textarea {
   width: 100%;
