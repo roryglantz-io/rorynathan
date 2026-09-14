@@ -1,4 +1,4 @@
-import { getDb } from '../../../lib/db'
+import { getDb, runRaw } from '../../../lib/db'
 import { requireAdmin } from '../../../lib/auth'
 import { STATEMENTS } from '../../../lib/schema'
 
@@ -14,9 +14,7 @@ export default async function handler(req, res) {
     const done = []
 
     for (const statement of STATEMENTS) {
-      // The neon driver's tagged-template form is for parameterised queries;
-      // this is fixed DDL from our own source file, with nothing interpolated.
-      await sql([statement.sql])
+      await runRaw(sql, statement.sql)
       done.push(statement.label)
     }
 

@@ -13,8 +13,9 @@
 // on the physical invitation. Re-running updates existing parties matched by
 // email rather than creating duplicates.
 
-const { neon } = require('@neondatabase/serverless')
+const postgres = require('postgres')
 const { DB_URL_VARS, resolveDatabaseUrl } = require('../lib/database-url')
+const { connectionOptions } = require('../lib/db-options')
 const fs = require('fs')
 const crypto = require('crypto')
 require('dotenv').config({ path: '.env.local' })
@@ -87,7 +88,7 @@ async function main() {
     process.exit(1)
   }
 
-  const sql = neon(url)
+  const sql = postgres(url, connectionOptions(url))
   const added = []
   let updated = 0
 

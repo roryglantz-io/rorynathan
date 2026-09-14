@@ -19,10 +19,14 @@ marked TBD — see *While the date is unset* below.
 A [Vercel](https://vercel.com) account alone is enough to start: add a Postgres
 database from its Storage tab and Vercel provisions it and injects the
 connection string into the project, so there's no second signup and no string
-to copy. (That database is Neon underneath — Vercel resells it — but you never
-deal with Neon directly.) You can also bring your own Postgres from anywhere;
-the schema and queries are plain PostgreSQL with nothing vendor-specific, and
-are tested against stock PostgreSQL 16.
+to copy. Any Postgres works — Supabase, Neon, or your own server. The app uses the
+standard `postgres` driver over plain PostgreSQL, with nothing vendor-specific
+in the schema or the queries, and is tested against stock PostgreSQL 16.
+
+Connections are configured for serverless and for pooled Postgres: one
+connection per instance, TLS on anything that isn't localhost, and prepared
+statements disabled — Supabase and any pgbouncer in transaction mode can't
+hold prepared statements across pooled connections.
 
 [Resend](https://resend.com) is only needed for save-the-date and reminder
 emails. Skip it until you have a date — those features stay dormant until then.

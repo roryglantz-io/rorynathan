@@ -7,9 +7,10 @@
 //   - paste scripts/schema.sql into your database provider's SQL editor.
 // All three run the same statements from lib/schema.js.
 
-const { neon } = require('@neondatabase/serverless')
+const postgres = require('postgres')
 const { STATEMENTS } = require('../lib/schema')
 const { DB_URL_VARS, resolveDatabaseUrl } = require('../lib/database-url')
+const { connectionOptions } = require('../lib/db-options')
 require('dotenv').config({ path: '.env.local' })
 
 async function setup() {
@@ -20,15 +21,16 @@ async function setup() {
     process.exit(1)
   }
 
-  const sql = neon(url)
+  const sql = postgres(url, connectionOptions(url))
   console.log(`Creating tables (using ${from})...`)
 
   for (const statement of STATEMENTS) {
-    await sql([statement.sql])
+    await sql.unsafe(statement.sql)
     console.log('  ' + statement.label)
   }
 
   console.log('Done.')
+  await sql.end()
 }
 
 setup().catch(err => {

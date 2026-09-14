@@ -86,7 +86,7 @@ export default async function handler(req, res) {
           guest_id     = ${guestId},
           party_name   = ${String(partyName).trim().slice(0, 200)},
           attending    = ${attending},
-          attendees    = ${JSON.stringify(cleanAttendees)}::jsonb,
+          attendees    = ${sql.json(cleanAttendees)},
           song_request = ${String(songRequest || '').trim().slice(0, 300) || null},
           note         = ${String(note || '').trim().slice(0, 1000) || null},
           updated_at   = NOW()
@@ -102,7 +102,7 @@ export default async function handler(req, res) {
         ${String(partyName).trim().slice(0, 200)},
         ${normalizedEmail},
         ${attending},
-        ${JSON.stringify(cleanAttendees)}::jsonb,
+        ${sql.json(cleanAttendees)},
         ${String(songRequest || '').trim().slice(0, 300) || null},
         ${String(note || '').trim().slice(0, 1000) || null}
       )
