@@ -32,7 +32,9 @@ export default function Layout({ children, title, description }) {
       <header className="nav">
         <div className="nav__inner">
           <Link href="/" className="nav__brand" onClick={() => setOpen(false)}>
-            {config.couple.partnerOne} &amp; {config.couple.partnerTwo}
+            {/* The couple's names are the alt text, so screen readers and search
+                results get "Rory & Nathan" rather than an unlabelled graphic. */}
+            <img src="/monogram.png" alt={config.coupleNames} />
           </Link>
 
           <button

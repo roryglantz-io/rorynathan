@@ -128,13 +128,16 @@ img { max-width: 100%; display: block; }
   gap: 16px;
 }
 .nav__brand {
-  font-family: var(--script);
-  font-size: 1.7rem;
-  line-height: 1;
-  color: var(--ink);
+  display: flex;
+  align-items: center;
+  line-height: 0;
   text-decoration: none;
-  white-space: nowrap;
-  padding-top: 4px;
+}
+.nav__brand img {
+  /* The mark's strokes are very fine, so it needs a little more height than a
+     wordmark would to stay legible in a 64px bar. */
+  height: 46px;
+  width: auto;
 }
 .nav__links { display: flex; align-items: center; gap: 28px; }
 .nav__link {
@@ -185,6 +188,14 @@ img { max-width: 100%; display: block; }
   padding: 80px 24px;
   border-bottom: 1px solid var(--rule);
 }
+.hero__mark {
+  /* Decorative here: the names are set in type immediately below, so the
+     mark is hidden from screen readers rather than read out twice. */
+  height: clamp(96px, 20vw, 150px);
+  width: auto;
+  margin: 0 auto 28px;
+}
+
 .hero__names { margin: 0; }
 .hero__amp {
   display: block;
