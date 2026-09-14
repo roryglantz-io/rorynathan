@@ -31,6 +31,11 @@ npm run setup-db               # creates the tables
 npm run dev                    # http://localhost:3000
 ```
 
+No terminal handy? `scripts/schema.sql` is the same thing as a single
+paste-able block — open the Neon SQL Editor in your browser, paste, Run. It's
+verified to produce a schema identical to `npm run setup-db`, down to the
+indexes and the foreign key's ON DELETE behaviour.
+
 **4. Deploy.** Import the repo on Vercel and set the **Root Directory** to
 `wedding`. Add every variable from `.env.example` in the Vercel dashboard.
 

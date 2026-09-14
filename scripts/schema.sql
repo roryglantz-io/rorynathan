@@ -1,0 +1,45 @@
+-- Paste this into the Neon SQL Editor (console.neon.tech -> your project ->
+-- SQL Editor) and press Run. It does the same thing as `npm run setup-db`,
+-- so you don't need a terminal to set the database up.
+--
+-- Safe to run more than once: every statement is IF NOT EXISTS.
+
+-- Your invite list. Optional — leave it empty and anyone with the link can
+-- RSVP. Fill it in and you get per-party seat limits, invite codes, and
+-- reminder emails to whoever hasn't replied.
+CREATE TABLE IF NOT EXISTS guests (
+  id           SERIAL PRIMARY KEY,
+  party_name   TEXT NOT NULL,
+  email        TEXT,
+  invite_code  TEXT UNIQUE,
+  max_guests   INT NOT NULL DEFAULT 1,
+  created_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- One row per party that replies. Each named guest lives in `attendees` with
+-- their own meal choice and dietary note, so a party of four is one row and
+-- four chairs.
+CREATE TABLE IF NOT EXISTS rsvps (
+  id            SERIAL PRIMARY KEY,
+  guest_id      INT REFERENCES guests(id) ON DELETE SET NULL,
+  party_name    TEXT NOT NULL,
+  email         TEXT NOT NULL,
+  attending     BOOLEAN NOT NULL,
+  attendees     JSONB NOT NULL DEFAULT '[]'::jsonb,
+  song_request  TEXT,
+  note          TEXT,
+  created_at    TIMESTAMPTZ DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Stops the daily reminder job from mailing the same person the same thing
+-- twice, even if it fires more than once.
+CREATE TABLE IF NOT EXISTS email_log (
+  id      SERIAL PRIMARY KEY,
+  email   TEXT NOT NULL,
+  kind    TEXT NOT NULL,
+  sent_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_email_log_once ON email_log(email, kind);
+CREATE INDEX IF NOT EXISTS idx_rsvps_email ON rsvps(lower(email));
