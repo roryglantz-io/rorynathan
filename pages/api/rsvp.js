@@ -9,7 +9,9 @@ export default async function handler(req, res) {
 
   // The deadline is enforced here, not just hidden in the UI — otherwise a
   // stale browser tab can still submit a week after the caterer is counted.
-  if (Date.now() > new Date(config.rsvpDeadline).getTime()) {
+  // A null deadline means there isn't one yet, so replies stay open. Without
+  // this guard `new Date(null)` is the epoch and every RSVP is refused.
+  if (config.rsvpDeadline && Date.now() > new Date(config.rsvpDeadline).getTime()) {
     return res.status(403).json({
       error: `RSVPs closed on ${config.rsvpDeadlineLabel}. Please email ${config.contactEmail} and we'll sort it out.`,
     })

@@ -13,6 +13,14 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
+  // No deadline set yet, so there's nothing to count down to. Checked before
+  // we open a connection: a dormant reminder job should say it has nothing to
+  // do, not report a database error. Without it the arithmetic below is NaN
+  // and every comparison quietly returns false.
+  if (!config.rsvpDeadline) {
+    return res.status(200).json({ sent: 0, message: 'No RSVP deadline set; nothing to remind about.' })
+  }
+
   try {
     const sql = getDb()
 

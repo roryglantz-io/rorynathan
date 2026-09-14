@@ -47,30 +47,6 @@ async function setup() {
     )
   `
 
-  // Guests leave a message for the couple. `approved` lets you moderate from
-  // /admin before anything shows publicly.
-  await sql`
-    CREATE TABLE IF NOT EXISTS guestbook_posts (
-      id           SERIAL PRIMARY KEY,
-      author_name  TEXT NOT NULL,
-      message      TEXT NOT NULL,
-      image_url    TEXT,
-      approved     BOOLEAN NOT NULL DEFAULT TRUE,
-      created_at   TIMESTAMPTZ DEFAULT NOW()
-    )
-  `
-
-  // Engagement photos etc. Uploaded from /admin, shown on /gallery.
-  await sql`
-    CREATE TABLE IF NOT EXISTS gallery_photos (
-      id           SERIAL PRIMARY KEY,
-      image_url    TEXT NOT NULL,
-      caption      TEXT,
-      sort_order   INT NOT NULL DEFAULT 0,
-      created_at   TIMESTAMPTZ DEFAULT NOW()
-    )
-  `
-
   // Stops the daily cron from mailing the same person the same thing twice.
   await sql`
     CREATE TABLE IF NOT EXISTS email_log (
@@ -83,13 +59,10 @@ async function setup() {
 
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_email_log_once ON email_log(email, kind)`
   await sql`CREATE INDEX IF NOT EXISTS idx_rsvps_email ON rsvps(lower(email))`
-  await sql`CREATE INDEX IF NOT EXISTS idx_guestbook_created ON guestbook_posts(created_at DESC)`
 
   console.log('Tables created:')
   console.log('  guests          — your invite list (optional)')
   console.log('  rsvps           — one row per responding party')
-  console.log('  guestbook_posts — messages from guests')
-  console.log('  gallery_photos  — photos shown on /gallery')
   console.log('  email_log       — which reminder emails already went out')
 }
 

@@ -19,6 +19,7 @@ export default function Countdown() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    if (config.dateTbd) return
     const target = new Date(config.weddingDate).getTime()
     setMounted(true)
     setLeft(remaining(target))
@@ -26,14 +27,13 @@ export default function Countdown() {
     return () => clearInterval(id)
   }, [])
 
+  // Nothing to count down to yet. Take up no room rather than showing zeros.
+  if (config.dateTbd) return <div style={{ height: 24 }} />
+
   if (!mounted) return <div className="countdown" aria-hidden="true" style={{ minHeight: 86 }} />
 
   if (!left) {
-    return (
-      <p className="hero__meta" style={{ margin: '34px 0 40px' }}>
-        Today&rsquo;s the day
-      </p>
-    )
+    return <p className="hero__meta" style={{ margin: '34px 0 40px' }}>Today&rsquo;s the day</p>
   }
 
   const units = [

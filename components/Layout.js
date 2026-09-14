@@ -7,8 +7,6 @@ import config from '../lib/config'
 const LINKS = [
   { href: '/', label: 'Home' },
   { href: '/details', label: 'Details' },
-  { href: '/gallery', label: 'Photos' },
-  { href: '/guestbook', label: 'Guestbook' },
   { href: '/registry', label: 'Registry' },
   { href: '/rsvp', label: 'RSVP' },
 ]

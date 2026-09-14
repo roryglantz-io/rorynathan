@@ -1,26 +1,25 @@
 /* ---------------------------------------------------------------------------
-   Palette and type scale. Change these eight colors and the whole site
-   re-themes — nothing below hardcodes a color.
+   Monochrome. No colour anywhere — hierarchy is carried by weight, scale,
+   letter-spacing and rules instead. Change these six values and the whole
+   site re-themes; nothing below hardcodes a colour.
+
+   Every text tone clears WCAG AA (4.5:1) on both backgrounds:
+   ink 17.4:1 · ink-soft 11.3:1 · ink-faint 6.3:1 (worst case, on --bg-alt).
 --------------------------------------------------------------------------- */
 :root {
-  --bg:          #faf7f2;
-  --bg-alt:      #f2ece3;
-  --surface:     #fffdfa;
-  --ink:         #3c332a;
-  --ink-soft:    #5c5144;
-  --ink-faint:   #7d6852;
-  --rule:        #e2d9cc;
-  --accent:      #7a6144;
-  --accent-deep: #5f4d38;
+  --bg:        #ffffff;
+  --bg-alt:    #f2f2f2;
+  --surface:   #ffffff;
+  --ink:       #0d0d0d;
+  --ink-soft:  #333333;
+  --ink-faint: #595959;
+  --rule:      #d6d6d6;
 
-  /* Every text color above clears WCAG AA (4.5:1) on all three backgrounds.
-     --ink-faint is the lightest tone that still does, and it carries real
-     content — addresses, dress code, form hints — so don't lighten it for
-     looks. Guest lists span every age and half of them read this outdoors
-     on a phone. */
-
-  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-  --sans:  'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  /* The calligraphic face carries the couple's names and section headings —
+     the "major" type. It is never used below ~1.8rem, where a script this
+     fine stops being readable. */
+  --script: 'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive;
+  --serif:  'Times New Roman', Times, Georgia, serif;
 
   --page:  1080px;
   --prose: 620px;
@@ -32,31 +31,58 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: var(--sans);
-  font-size: 16px;
-  line-height: 1.7;
+  font-family: var(--serif);
+  font-size: 17px;          /* Times has a small x-height; 16px reads cramped */
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3 { font-family: var(--serif); font-weight: 400; line-height: 1.15; margin: 0; }
-h1 { font-size: clamp(2.6rem, 8vw, 4.6rem); }
-h2 { font-size: clamp(1.9rem, 5vw, 2.9rem); }
-h3 { font-size: 1.3rem; }
-p  { margin: 0 0 1.1em; }
-a  { color: var(--accent); }
+/* Major headings: the script face. */
+h1, h2 {
+  font-family: var(--script);
+  font-weight: 400;
+  line-height: 1.1;
+  margin: 0;
+  text-wrap: balance;
+}
+h1 { font-size: clamp(3.2rem, 11vw, 6rem); }
+h2 { font-size: clamp(2.2rem, 6vw, 3.4rem); }
+
+/* Everything below "major" stays in Times. */
+h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.28rem;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+p { margin: 0 0 1.1em; }
+
+/* Monochrome means colour can't mark a link. Underlines do the work. */
+a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+a:hover { text-decoration-thickness: 2px; }
+
 img { max-width: 100%; display: block; }
+
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 
 /* --- Shared bits ---------------------------------------------------------- */
 .eyebrow {
   font-size: 11px;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--ink-faint);
   margin: 0 0 14px;
 }
 
-.rule { width: 48px; height: 1px; background: var(--rule); border: 0; margin: 22px auto; }
-.rule--left { margin-left: 0; }
+.rule { width: 56px; height: 1px; background: var(--rule); border: 0; margin: 24px auto; }
 
 .section { padding: clamp(56px, 9vw, 104px) 24px; }
 .section--alt { background: var(--bg-alt); }
@@ -66,60 +92,61 @@ img { max-width: 100%; display: block; }
 
 .btn {
   display: inline-block;
-  font-family: var(--sans);
-  font-size: 12px;
-  letter-spacing: 0.16em;
+  font-family: var(--serif);
+  font-size: 13px;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   padding: 15px 34px;
   border: 1px solid var(--ink);
   background: var(--ink);
-  color: var(--surface);
+  color: var(--bg);
   text-decoration: none;
   cursor: pointer;
   transition: background 0.18s ease, color 0.18s ease;
 }
 .btn:hover { background: transparent; color: var(--ink); }
-.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn--ghost { background: transparent; color: var(--ink); }
-.btn--ghost:hover { background: var(--ink); color: var(--surface); }
+.btn--ghost:hover { background: var(--ink); color: var(--bg); }
 
 /* --- Nav ------------------------------------------------------------------ */
 .nav {
   position: sticky;
   top: 0;
   z-index: 40;
-  background: rgba(250, 247, 242, 0.94);
-  backdrop-filter: blur(8px);
+  background: var(--bg);
   border-bottom: 1px solid var(--rule);
 }
 .nav__inner {
   max-width: var(--page);
   margin: 0 auto;
   padding: 0 24px;
-  height: 62px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
 }
 .nav__brand {
-  font-family: var(--serif);
-  font-size: 1.25rem;
+  font-family: var(--script);
+  font-size: 1.7rem;
+  line-height: 1;
   color: var(--ink);
   text-decoration: none;
   white-space: nowrap;
+  padding-top: 4px;
 }
-.nav__links { display: flex; align-items: center; gap: 26px; }
+.nav__links { display: flex; align-items: center; gap: 28px; }
 .nav__link {
   font-size: 12px;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--ink-soft);
   text-decoration: none;
   padding: 4px 0;
   border-bottom: 1px solid transparent;
 }
-.nav__link:hover, .nav__link[aria-current='page'] { color: var(--ink); border-bottom-color: var(--accent); }
+.nav__link:hover, .nav__link[aria-current='page'] { color: var(--ink); border-bottom-color: var(--ink); }
 .nav__toggle {
   display: none;
   background: none;
@@ -131,78 +158,82 @@ img { max-width: 100%; display: block; }
   padding: 8px;
 }
 
-@media (max-width: 820px) {
+@media (max-width: 760px) {
   .nav__toggle { display: block; }
   .nav__links {
     position: absolute;
-    top: 62px; left: 0; right: 0;
+    top: 64px; left: 0; right: 0;
     flex-direction: column;
     align-items: stretch;
     gap: 0;
-    background: var(--surface);
+    background: var(--bg);
     border-bottom: 1px solid var(--rule);
     padding: 8px 24px 20px;
   }
   .nav__links[data-open='false'] { display: none; }
-  .nav__link { padding: 13px 0; border-bottom: 1px solid var(--rule); }
+  .nav__link { padding: 14px 0; border-bottom: 1px solid var(--rule); }
 }
 
 /* --- Hero ----------------------------------------------------------------- */
 .hero {
-  min-height: min(84vh, 720px);
+  min-height: min(78vh, 680px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 72px 24px;
-  background: var(--bg);
+  padding: 80px 24px;
   border-bottom: 1px solid var(--rule);
 }
-.hero__names { margin: 0; letter-spacing: 0.01em; }
-.hero__amp { display: block; font-size: 0.5em; font-style: italic; color: var(--accent); margin: 0.1em 0; }
-.hero__meta { font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); margin: 0; }
+.hero__names { margin: 0; }
+.hero__amp {
+  display: block;
+  font-size: 0.42em;
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 0.04em 0;
+}
+.hero__meta {
+  font-family: var(--serif);
+  font-size: 13px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0;
+}
 
 /* --- Countdown ------------------------------------------------------------ */
+/* Numerals stay in Times — a script face makes digits unreadable at a glance. */
 .countdown { display: flex; justify-content: center; gap: clamp(18px, 5vw, 46px); margin: 34px 0 40px; }
 .countdown__unit { min-width: 56px; }
-.countdown__num { font-family: var(--serif); font-size: clamp(1.9rem, 5vw, 2.8rem); line-height: 1; }
-.countdown__label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint); margin-top: 7px; }
-
-/* --- Story timeline ------------------------------------------------------- */
-.story { display: grid; gap: 40px; max-width: var(--prose); margin: 0 auto; }
-.story__item { display: grid; grid-template-columns: 76px 1fr; gap: 22px; align-items: start; }
-.story__year { font-family: var(--serif); font-size: 1.5rem; color: var(--accent); padding-top: 2px; }
-.story__body { color: var(--ink-soft); margin: 6px 0 0; }
-@media (max-width: 560px) {
-  .story__item { grid-template-columns: 1fr; gap: 6px; }
+.countdown__num {
+  font-family: var(--serif);
+  font-size: clamp(1.9rem, 5vw, 2.6rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
+.countdown__label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-faint); margin-top: 8px; }
 
 /* --- Schedule ------------------------------------------------------------- */
 .schedule { max-width: var(--prose); margin: 0 auto; }
 .schedule__row {
   display: grid;
-  grid-template-columns: 110px 1fr;
-  gap: 22px;
+  grid-template-columns: 120px 1fr;
+  gap: 24px;
   padding: 22px 0;
   border-bottom: 1px solid var(--rule);
 }
 .schedule__row:last-child { border-bottom: 0; }
-.schedule__time { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); padding-top: 5px; }
-.schedule__detail { color: var(--ink-soft); font-size: 15px; margin: 4px 0 0; }
+.schedule__time { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); padding-top: 6px; }
+.schedule__detail { color: var(--ink-soft); font-size: 16px; margin: 4px 0 0; }
 @media (max-width: 560px) {
   .schedule__row { grid-template-columns: 1fr; gap: 4px; }
 }
 
 /* --- Cards ---------------------------------------------------------------- */
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px; }
-.card {
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  padding: 28px;
-}
-.card__meta { font-size: 13px; color: var(--ink-faint); margin: 4px 0 0; }
-.card a { color: var(--accent-deep); }
+.card { background: var(--surface); border: 1px solid var(--rule); padding: 30px; }
+.card__meta { font-size: 15px; color: var(--ink-faint); margin: 4px 0 0; }
 
 /* --- FAQ ------------------------------------------------------------------ */
 .faq { max-width: var(--prose); margin: 0 auto; }
@@ -217,37 +248,37 @@ img { max-width: 100%; display: block; }
   border: 0;
   padding: 20px 0;
   font-family: var(--serif);
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   color: var(--ink);
   text-align: left;
   cursor: pointer;
 }
-.faq__sign { font-family: var(--sans); font-size: 18px; color: var(--accent); flex-shrink: 0; }
-.faq__a { color: var(--ink-soft); padding: 0 0 22px; margin: 0; max-width: 54ch; }
+.faq__sign { font-size: 18px; color: var(--ink-faint); flex-shrink: 0; }
+.faq__a { color: var(--ink-soft); padding: 0 0 22px; margin: 0; max-width: 56ch; }
 
 /* --- Forms ---------------------------------------------------------------- */
 .form { max-width: var(--prose); margin: 0 auto; }
-.field { margin-bottom: 22px; }
+.field { margin-bottom: 24px; }
 .field__label {
   display: block;
   font-size: 11px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  margin-bottom: 8px;
+  margin-bottom: 9px;
 }
-.field__hint { font-size: 13px; color: var(--ink-faint); margin: 6px 0 0; }
+.field__hint { font-size: 14px; color: var(--ink-faint); margin: 7px 0 0; }
 
-/* The header is sticky and 62px tall. Without this, a field that fails
+/* The header is sticky and 64px tall. Without this, a field that fails
    validation gets scrolled to the very top of the viewport and sits *under*
    the header — the guest sees the browser's "please fill this in" bubble
    pointing at something they can't see. */
-input, select, textarea, .attendee, h2, h3 { scroll-margin-top: 84px; }
+input, select, textarea, .attendee, h2, h3 { scroll-margin-top: 86px; }
 
 input[type='text'], input[type='email'], select, textarea {
   width: 100%;
-  font-family: var(--sans);
-  font-size: 16px;
+  font-family: var(--serif);
+  font-size: 17px;
   color: var(--ink);
   background: var(--surface);
   border: 1px solid var(--rule);
@@ -255,15 +286,15 @@ input[type='text'], input[type='email'], select, textarea {
   padding: 13px 14px;
   transition: border-color 0.15s ease;
 }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
-textarea { resize: vertical; min-height: 96px; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--ink); }
+textarea { resize: vertical; min-height: 100px; }
 
 .choice { display: flex; gap: 14px; flex-wrap: wrap; }
 .choice__btn {
   flex: 1 1 200px;
-  font-family: var(--sans);
+  font-family: var(--serif);
   font-size: 13px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   padding: 18px;
   background: var(--surface);
@@ -272,61 +303,44 @@ textarea { resize: vertical; min-height: 96px; }
   cursor: pointer;
   transition: all 0.16s ease;
 }
-.choice__btn:hover { border-color: var(--accent); color: var(--ink); }
-.choice__btn[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+.choice__btn:hover { border-color: var(--ink); color: var(--ink); }
+.choice__btn[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
 
-.attendee {
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  padding: 22px;
-  margin-bottom: 16px;
+.attendee { background: var(--surface); border: 1px solid var(--rule); padding: 24px; margin-bottom: 16px; }
+.attendee__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.attendee__num { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-faint); }
+.linkbtn {
+  background: none; border: 0; color: var(--ink); font-family: var(--serif);
+  font-size: 14px; cursor: pointer; padding: 4px; text-decoration: underline; text-underline-offset: 3px;
 }
-.attendee__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.attendee__num { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); }
-.linkbtn { background: none; border: 0; color: var(--accent); font-family: var(--sans); font-size: 13px; cursor: pointer; padding: 4px; text-decoration: underline; }
 
-.alert { padding: 15px 18px; border: 1px solid; margin-bottom: 22px; font-size: 15px; }
-.alert--error { border-color: #c0796b; background: #fbf0ed; color: #8f4436; }
-.alert--info  { border-color: var(--rule); background: var(--bg-alt); color: var(--ink-soft); }
-
-/* --- Gallery -------------------------------------------------------------- */
-.gallery { columns: 3 240px; column-gap: 16px; }
-.gallery__item { break-inside: avoid; margin-bottom: 16px; }
-.gallery__item img { width: 100%; border: 1px solid var(--rule); }
-.gallery__caption { font-size: 13px; color: var(--ink-faint); margin: 7px 0 0; }
-
-/* --- Guestbook ------------------------------------------------------------ */
-.notes { columns: 3 260px; column-gap: 20px; }
-.note {
-  break-inside: avoid;
-  margin-bottom: 20px;
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  padding: 22px;
-}
-.note img { margin-bottom: 14px; border: 1px solid var(--rule); }
-.note__msg { white-space: pre-wrap; word-break: break-word; margin: 0 0 12px; }
-.note__author { font-family: var(--serif); font-size: 1.1rem; color: var(--accent-deep); margin: 0; }
-.note__date { font-size: 12px; color: var(--ink-faint); margin: 2px 0 0; }
+/* Alerts are monochrome too — a left rule and weight carry the difference. */
+.alert { padding: 15px 18px; border: 1px solid var(--rule); margin-bottom: 22px; font-size: 16px; }
+.alert--error { border-left: 4px solid var(--ink); color: var(--ink); }
+.alert--info { background: var(--bg-alt); color: var(--ink-soft); }
 
 /* --- Admin ---------------------------------------------------------------- */
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 36px; }
-.stat { background: var(--surface); border: 1px solid var(--rule); padding: 20px; }
-.stat__num { font-family: var(--serif); font-size: 2.2rem; line-height: 1; }
-.stat__label { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); margin-top: 8px; }
+.stat { background: var(--surface); border: 1px solid var(--rule); padding: 22px; }
+.stat__num { font-family: var(--serif); font-size: 2.3rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat__label { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-faint); margin-top: 8px; }
 
 .table-wrap { overflow-x: auto; border: 1px solid var(--rule); background: var(--surface); }
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
 th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
-th { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); font-weight: 500; white-space: nowrap; }
+th { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); font-weight: 400; white-space: nowrap; }
 tr:last-child td { border-bottom: 0; }
 
 /* --- Footer --------------------------------------------------------------- */
-.footer { border-top: 1px solid var(--rule); padding: 44px 24px; text-align: center; background: var(--bg-alt); }
-.footer p { font-size: 13px; color: var(--ink-faint); margin: 0 0 6px; }
+.footer { border-top: 1px solid var(--rule); padding: 48px 24px; text-align: center; background: var(--bg-alt); }
+.footer p { font-size: 14px; color: var(--ink-faint); margin: 0 0 6px; }
 
 .sr-only {
   position: absolute; width: 1px; height: 1px;
   padding: 0; margin: -1px; overflow: hidden;
   clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }

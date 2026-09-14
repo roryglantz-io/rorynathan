@@ -33,6 +33,7 @@ export default function Rsvp() {
   // a stale "still open" state. The API enforces it again on submit.
   const [closed, setClosed] = useState(false)
   useEffect(() => {
+    if (!config.rsvpDeadline) return
     setClosed(Date.now() > new Date(config.rsvpDeadline).getTime())
   }, [])
 
@@ -116,12 +117,14 @@ export default function Rsvp() {
             <hr className="rule" />
             <p style={{ color: 'var(--ink-soft)' }}>
               {done.attending
-                ? `We can't wait to see you on ${config.weddingDateLabel}. We'll be in touch closer to the day with anything else you need.`
+                ? config.dateTbd
+                  ? `Thank you — we have your details. We'll be in touch as soon as we've settled on a date.`
+                  : `We can't wait to see you on ${config.weddingDateLabel}. We'll be in touch closer to the day with anything else you need.`
                 : `We'll miss you, and we completely understand. Thank you for taking a moment to reply.`}
             </p>
             <p style={{ color: 'var(--ink-soft)' }}>
               Changed your mind, or made a mistake? Submit the form again with the same email
-              address before {config.rsvpDeadlineLabel} and it will replace this reply.
+              address{config.rsvpDeadlineLabel ? ` before ${config.rsvpDeadlineLabel}` : ''} and it will replace this reply.
             </p>
             <button className="btn btn--ghost" onClick={() => setDone(null)} style={{ marginTop: 10 }}>
               Edit my reply
@@ -136,7 +139,9 @@ export default function Rsvp() {
     <Layout title="RSVP" description={`RSVP for ${config.coupleNames}, ${config.weddingDateLabel}.`}>
       <section className="section">
         <div className="inner center" style={{ marginBottom: 44 }}>
-          <p className="eyebrow">Kindly reply by {config.rsvpDeadlineLabel}</p>
+          <p className="eyebrow">
+            {config.rsvpDeadlineLabel ? `Kindly reply by ${config.rsvpDeadlineLabel}` : 'We\u2019d love to hear from you'}
+          </p>
           <h2>RSVP</h2>
           <hr className="rule" />
         </div>
@@ -180,7 +185,9 @@ export default function Rsvp() {
             </div>
 
             <div className="field">
-              <span className="field__label">Will you be joining us?</span>
+              <span className="field__label">
+                {config.dateTbd ? 'Do you think you can make it?' : 'Will you be joining us?'}
+              </span>
               <div className="choice">
                 <button
                   type="button"

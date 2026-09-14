@@ -5,6 +5,7 @@ import config from '../lib/config'
 export default function Details() {
   return (
     <Layout title="Details" description={`Schedule, venue and travel details for ${config.coupleNames}.`}>
+      {config.schedule.length > 0 && (
       <section className="section">
         <div className="inner center" style={{ marginBottom: 48 }}>
           <p className="eyebrow">{config.weddingDateLabel}</p>
@@ -24,6 +25,7 @@ export default function Details() {
           ))}
         </div>
       </section>
+      )}
 
       <section className="section section--alt">
         <div className="inner center" style={{ marginBottom: 48 }}>
@@ -39,19 +41,23 @@ export default function Details() {
               <h3>{v.venue}</h3>
               <p className="card__meta">{v.address}</p>
               {v.note && <p className="card__meta" style={{ marginTop: 12 }}>{v.note}</p>}
-              <p className="card__meta" style={{ marginTop: 16 }}>
-                <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.mapQuery)}`} target="_blank" rel="noopener noreferrer">
-                  Directions &rarr;
-                </a>
-              </p>
+              {v.mapQuery && (
+                <p className="card__meta" style={{ marginTop: 16 }}>
+                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.mapQuery)}`} target="_blank" rel="noopener noreferrer">
+                    Directions &rarr;
+                  </a>
+                </p>
+              )}
             </article>
           ))}
 
-          <article className="card">
-            <p className="eyebrow" style={{ marginBottom: 10 }}>What to wear</p>
-            <h3>{config.dressCode.label}</h3>
-            <p className="card__meta" style={{ marginTop: 10 }}>{config.dressCode.detail}</p>
-          </article>
+          {config.dressCode.detail && (
+            <article className="card">
+              <p className="eyebrow" style={{ marginBottom: 10 }}>What to wear</p>
+              <h3>{config.dressCode.label}</h3>
+              <p className="card__meta" style={{ marginTop: 10 }}>{config.dressCode.detail}</p>
+            </article>
+          )}
         </div>
       </section>
 
@@ -66,6 +72,7 @@ export default function Details() {
         </div>
 
         <div className="inner cards">
+          {config.travel.airports.length > 0 && (
           <article className="card">
             <p className="eyebrow" style={{ marginBottom: 14 }}>Nearest airports</p>
             {config.travel.airports.map(a => (
@@ -75,6 +82,7 @@ export default function Details() {
               </div>
             ))}
           </article>
+          )}
 
           {config.travel.hotels.map(h => (
             <article className="card" key={h.name}>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 import { toast } from 'sonner'
 import Layout from '../components/Layout'
@@ -76,7 +76,6 @@ export default function Admin() {
 function Dashboard({ token, onSignOut }) {
   const fetcher = authFetcher(token)
   const rsvps = useSWR('/api/admin/rsvps', fetcher)
-  const guestbook = useSWR('/api/admin/guestbook', fetcher)
 
   // A bad token surfaces as a failed fetch — say so plainly rather than
   // rendering an empty dashboard that looks like nobody has replied.
@@ -227,65 +226,6 @@ function Dashboard({ token, onSignOut }) {
             </>
           )}
 
-          <GalleryManager token={token} />
-
-          <h3 style={{ margin: '40px 0 16px' }}>Guestbook moderation</h3>
-          {guestbook.error && <div className="alert alert--error">{guestbook.error.message}</div>}
-          {guestbook.data?.posts?.length === 0 && (
-            <p style={{ color: 'var(--ink-faint)' }}>No guestbook messages yet.</p>
-          )}
-          {guestbook.data?.posts?.length > 0 && (
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr><th>From</th><th>Message</th><th>Visible</th><th></th></tr>
-                </thead>
-                <tbody>
-                  {guestbook.data.posts.map(p => (
-                    <tr key={p.id}>
-                      <td>{p.author_name}</td>
-                      <td style={{ maxWidth: 380 }}>
-                        {p.message}
-                        {p.image_url && (
-                          <div><a href={p.image_url} target="_blank" rel="noopener noreferrer">view photo</a></div>
-                        )}
-                      </td>
-                      <td>{p.approved ? 'Yes' : 'Hidden'}</td>
-                      <td style={{ whiteSpace: 'nowrap' }}>
-                        <button
-                          className="linkbtn"
-                          onClick={async () => {
-                            await fetch('/api/admin/guestbook', {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                              body: JSON.stringify({ id: p.id, approved: !p.approved }),
-                            })
-                            guestbook.mutate()
-                          }}
-                        >
-                          {p.approved ? 'Hide' : 'Show'}
-                        </button>
-                        <button
-                          className="linkbtn"
-                          onClick={async () => {
-                            if (!window.confirm(`Permanently delete the message from ${p.author_name}?`)) return
-                            await fetch('/api/admin/guestbook', {
-                              method: 'DELETE',
-                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                              body: JSON.stringify({ id: p.id }),
-                            })
-                            guestbook.mutate()
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
         </div>
       </section>
     </Layout>
@@ -346,93 +286,5 @@ function SaveTheDateCard({ token }) {
         {busy ? 'Sending…' : 'Send to everyone'}
       </button>
     </div>
-  )
-}
-
-function GalleryManager({ token }) {
-  const fetcher = url => fetch(url).then(r => r.json())
-  const { data, mutate } = useSWR('/api/gallery', fetcher)
-  const [caption, setCaption] = useState('')
-  const [busy, setBusy] = useState(false)
-  const fileRef = useRef(null)
-
-  async function upload(e) {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    setBusy(true)
-    try {
-      const dataUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(reader.result)
-        reader.onerror = reject
-        reader.readAsDataURL(file)
-      })
-
-      const up = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: dataUrl }),
-      })
-      const upBody = await up.json()
-      if (!up.ok) { toast.error(upBody.error || 'Upload failed.'); return }
-
-      const res = await fetch('/api/admin/gallery', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ imageUrl: upBody.url, caption }),
-      })
-      if (!res.ok) { toast.error('Could not add the photo.'); return }
-
-      setCaption('')
-      if (fileRef.current) fileRef.current.value = ''
-      mutate()
-      toast.success('Photo added.')
-    } catch {
-      toast.error('Upload failed.')
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  return (
-    <>
-      <h3 style={{ margin: '40px 0 16px' }}>Gallery</h3>
-      <div className="card" style={{ marginBottom: 20 }}>
-        <div className="field">
-          <label className="field__label" htmlFor="cap">Caption (optional)</label>
-          <input id="cap" type="text" value={caption} onChange={e => setCaption(e.target.value)} />
-        </div>
-        <div className="field" style={{ marginBottom: 0 }}>
-          <label className="field__label" htmlFor="galfile">Choose a photo to add</label>
-          <input id="galfile" ref={fileRef} type="file" accept="image/*" onChange={upload} disabled={busy} />
-        </div>
-      </div>
-
-      <div className="gallery">
-        {(data?.photos || []).map(p => (
-          <figure className="gallery__item" key={p.id}>
-            <img src={p.image_url} alt={p.caption || ''} loading="lazy" />
-            <figcaption className="gallery__caption">
-              {p.caption}
-              <button
-                className="linkbtn"
-                onClick={async () => {
-                  if (!window.confirm('Remove this photo from the gallery?')) return
-                  await fetch('/api/admin/gallery', {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                    body: JSON.stringify({ id: p.id }),
-                  })
-                  mutate()
-                }}
-              >
-                Remove
-              </button>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
-    </>
   )
 }
