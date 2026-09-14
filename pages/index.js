@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <Layout>
       <section className="hero">
-        <p className="eyebrow">We&rsquo;re getting married</p>
+        <p className="eyebrow">We&rsquo;re getting married!</p>
         <h1 className="hero__names">
           {config.couple.partnerOne}
           <span className="hero__amp">and</span>
