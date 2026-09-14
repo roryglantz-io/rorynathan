@@ -188,14 +188,6 @@ img { max-width: 100%; display: block; }
   padding: 80px 24px;
   border-bottom: 1px solid var(--rule);
 }
-.hero__mark {
-  /* Decorative here: the names are set in type immediately below, so the
-     mark is hidden from screen readers rather than read out twice. */
-  height: clamp(96px, 20vw, 150px);
-  width: auto;
-  margin: 0 auto 28px;
-}
-
 .hero__names { margin: 0; }
 .hero__amp {
   display: block;

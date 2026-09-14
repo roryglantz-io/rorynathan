@@ -14,7 +14,6 @@ export default function Home() {
   return (
     <Layout>
       <section className="hero">
-        <img className="hero__mark" src="/monogram.png" alt="" aria-hidden="true" />
         <p className="eyebrow">We&rsquo;re getting married!</p>
         <h1 className="hero__names">
           {config.couple.partnerOne}
