@@ -275,7 +275,11 @@ img { max-width: 100%; display: block; }
    pointing at something they can't see. */
 input, select, textarea, .attendee, h2, h3 { scroll-margin-top: 86px; }
 
-input[type='text'], input[type='email'], select, textarea {
+/* Every text-like input, listed by exclusion rather than by naming each type —
+   a type-by-type list silently skipped password fields, leaving the unlock and
+   admin screens with a stub-width box next to a full-width button. */
+input:not([type='file']):not([type='checkbox']):not([type='radio']):not([type='submit']):not([type='button']),
+select, textarea {
   width: 100%;
   font-family: var(--serif);
   font-size: 17px;

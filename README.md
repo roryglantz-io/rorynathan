@@ -75,6 +75,32 @@ To re-theme, change the six values at the top of `styles/globals.css`.
 
 ---
 
+## Password protecting the site
+
+Set `SITE_PASSWORD` and every page asks for it before showing anything. Put the
+password on the invitation. Leave the variable unset and the site is public —
+that's the default, so a missing variable can never lock everyone out.
+
+How it works: `middleware.js` checks a signed cookie on every request. The
+cookie carries its own expiry signed alongside it, so it can't be edited to
+extend access, and it's `HttpOnly` so page scripts can't read it. Guests stay
+signed in for 30 days. Someone who follows a link to a specific page lands on
+that page after unlocking, not on the homepage.
+
+Three paths are deliberately exempt, or the site couldn't function: Next's
+static assets, `/unlock` and the endpoint behind it, and `/api/cron/*`, which
+Vercel calls with no cookie and which authenticates itself with `CRON_SECRET`.
+
+**This is one shared password, not per-guest accounts.** It keeps the site out
+of search results and away from casual visitors. Anyone a guest forwards the
+password to can get in, so don't treat it as a secret — and `/admin` keeps its
+own separate `ADMIN_TOKEN` on top, because that page shows every guest's email.
+
+To change the password later, edit the variable in Vercel and redeploy.
+Existing cookies stop working immediately, so everyone signs in again.
+
+---
+
 ## The guest list (optional)
 
 You can run an open RSVP where anyone with the link replies. Filling in the
@@ -105,6 +131,7 @@ seats you've held for them.
 | `/details` | Schedule, venue, dress code, travel, FAQ |
 | `/registry` | Registry links |
 | `/rsvp` | The RSVP form |
+| `/unlock` | Password prompt, when `SITE_PASSWORD` is set |
 | `/admin` | **Private.** Head count, meal totals, dietary notes, CSV export, who hasn't replied, save-the-date sending |
 
 `/admin` is protected by `ADMIN_TOKEN`. Keep it secret — anyone with it sees
@@ -152,4 +179,5 @@ You'll need to verify a sending domain in Resend before real mail is delivered.
 - [ ] Send yourself a save-the-date preview and read it on a phone
 - [ ] Submit a test RSVP, then re-submit with the same email to confirm it edits
 - [ ] Set a real `ADMIN_TOKEN` and `CRON_SECRET`
+- [ ] Decide whether to set `SITE_PASSWORD`, and put it on the invitation
 - [ ] Point your domain at Vercel
