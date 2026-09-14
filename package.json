@@ -2,13 +2,14 @@
   "name": "wedding-website",
   "version": "1.0.0",
   "private": true,
-  "description": "Wedding website — RSVP, details & travel, registry",
+  "description": "Wedding website \u2014 RSVP, details & travel, registry",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "setup-db": "node scripts/setup-db.js",
-    "import-guests": "node scripts/import-guests.js"
+    "import-guests": "node scripts/import-guests.js",
+    "schema:sql": "node scripts/gen-schema-sql.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.9.0",

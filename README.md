@@ -15,12 +15,17 @@ its own repo: copy the `wedding/` folder somewhere, `git init`, done.
 That one file holds every word a guest reads. Date and venue are currently
 marked TBD — see *While the date is unset* below.
 
-**2. Get the accounts you need:**
-| Service | What for |
-|---|---|
-| [Neon](https://neon.tech) | Postgres database (RSVPs) |
-| [Vercel](https://vercel.com) | Hosting |
-| [Resend](https://resend.com) | Save-the-date and reminder emails |
+**2. Get the accounts you need.**
+A [Vercel](https://vercel.com) account alone is enough to start: add a Postgres
+database from its Storage tab and Vercel provisions it and injects the
+connection string into the project, so there's no second signup and no string
+to copy. (That database is Neon underneath — Vercel resells it — but you never
+deal with Neon directly.) You can also bring your own Postgres from anywhere;
+the schema and queries are plain PostgreSQL with nothing vendor-specific, and
+are tested against stock PostgreSQL 16.
+
+[Resend](https://resend.com) is only needed for save-the-date and reminder
+emails. Skip it until you have a date — those features stay dormant until then.
 
 **3. Configure and run:**
 ```bash
@@ -31,10 +36,17 @@ npm run setup-db               # creates the tables
 npm run dev                    # http://localhost:3000
 ```
 
-No terminal handy? `scripts/schema.sql` is the same thing as a single
-paste-able block — open the Neon SQL Editor in your browser, paste, Run. It's
-verified to produce a schema identical to `npm run setup-db`, down to the
-indexes and the foreign key's ON DELETE behaviour.
+No terminal? Two other ways to create the tables, both running the same
+statements from `lib/schema.js`:
+
+- **Press "Set up database" in `/admin`.** Easiest on a fresh deploy — sign in
+  with your `ADMIN_TOKEN` and the button appears on the error screen that
+  shows when the tables don't exist yet.
+- **Paste `scripts/schema.sql`** into any SQL editor. It's generated from
+  `lib/schema.js` by `npm run schema:sql`, so it can't drift from the code.
+
+All three are verified to produce an identical schema — same 20 columns, same
+6 indexes, same ON DELETE behaviour on the foreign key.
 
 **4. Deploy.** Import the repo on Vercel and set the **Root Directory** to
 `wedding`. Add every variable from `.env.example` in the Vercel dashboard.
@@ -173,7 +185,10 @@ You'll need to verify a sending domain in Resend before real mail is delivered.
 `guests` (invite list) · `rsvps` (one row per party, guests as JSONB) ·
 `email_log`
 
-`npm run setup-db` is idempotent — safe to re-run after a schema change.
+The schema lives in `lib/schema.js` and nowhere else. `npm run setup-db`, the
+`/admin` button and `scripts/schema.sql` all read from it, so the three can't
+disagree; regenerate the `.sql` file with `npm run schema:sql` after a change.
+Every statement is `IF NOT EXISTS`, so all three are safe to re-run.
 
 ---
 

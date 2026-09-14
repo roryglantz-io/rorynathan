@@ -80,16 +80,28 @@ function Dashboard({ token, onSignOut }) {
   // A bad token surfaces as a failed fetch — say so plainly rather than
   // rendering an empty dashboard that looks like nobody has replied.
   if (rsvps.error) {
+    const unauthorized = rsvps.error.message === 'Unauthorized'
+    // "relation does not exist" means the tables haven't been created yet —
+    // a first deploy, not a real fault.
+    const needsSetup = !unauthorized && /does not exist|relation|no database connection/i.test(rsvps.error.message)
+
     return (
       <Layout title="Admin">
         <section className="section">
           <div className="inner inner--prose">
             <div className="alert alert--error">
-              {rsvps.error.message === 'Unauthorized'
+              {unauthorized
                 ? 'That admin token was not accepted.'
-                : `Could not load data: ${rsvps.error.message}`}
+                : needsSetup
+                  ? `The database isn't set up yet. ${rsvps.error.message}`
+                  : `Could not load data: ${rsvps.error.message}`}
             </div>
-            <button className="btn btn--ghost" onClick={onSignOut}>Use a different token</button>
+
+            {needsSetup && <SetupButton token={token} onDone={() => rsvps.mutate()} />}
+
+            <button className="btn btn--ghost" onClick={onSignOut} style={{ marginTop: 14 }}>
+              Use a different token
+            </button>
           </div>
         </section>
       </Layout>
@@ -165,6 +177,14 @@ function Dashboard({ token, onSignOut }) {
                 </div>
 
                 <SaveTheDateCard token={token} />
+
+                <div className="card">
+                  <p className="eyebrow" style={{ marginBottom: 12 }}>Database</p>
+                  <p className="card__meta" style={{ marginBottom: 16 }}>
+                    Creates any missing tables. Safe to run again at any time.
+                  </p>
+                  <SetupButton token={token} onDone={() => rsvps.mutate()} />
+                </div>
               </div>
 
               <h3 style={{ marginBottom: 16 }}>Replies</h3>
@@ -285,6 +305,46 @@ function SaveTheDateCard({ token }) {
       <button className="btn btn--ghost" disabled={busy} onClick={() => send(null)}>
         {busy ? 'Sending…' : 'Send to everyone'}
       </button>
+    </div>
+  )
+}
+
+function SetupButton({ token, onDone }) {
+  const [busy, setBusy] = useState(false)
+  const [done, setDone] = useState(null)
+
+  async function run() {
+    setBusy(true)
+    try {
+      const res = await fetch('/api/admin/setup', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const body = await res.json()
+      if (!res.ok) {
+        toast.error(body.error || 'Setup failed.')
+        return
+      }
+      setDone(body.created)
+      toast.success('Database ready.')
+      onDone?.()
+    } catch {
+      toast.error('Could not reach the server.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div>
+      <button className="btn" onClick={run} disabled={busy}>
+        {busy ? 'Setting up\u2026' : 'Set up database'}
+      </button>
+      {done && (
+        <ul style={{ color: 'var(--ink-faint)', fontSize: 15, marginTop: 14, paddingLeft: 18 }}>
+          {done.map(d => <li key={d}>{d}</li>)}
+        </ul>
+      )}
     </div>
   )
 }

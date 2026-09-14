@@ -1,69 +1,34 @@
-// Run this once (and again after any schema change — every statement is
-// idempotent, so re-running is safe).
+// Creates the tables. Run once — and again after any schema change, since
+// every statement is idempotent.
 //   node scripts/setup-db.js
+//
+// Two alternatives if you'd rather not use a terminal:
+//   - press "Set up database" in /admin, or
+//   - paste scripts/schema.sql into your database provider's SQL editor.
+// All three run the same statements from lib/schema.js.
 
 const { neon } = require('@neondatabase/serverless')
+const { STATEMENTS } = require('../lib/schema')
+const { DB_URL_VARS, resolveDatabaseUrl } = require('../lib/database-url')
 require('dotenv').config({ path: '.env.local' })
 
 async function setup() {
-  if (!process.env.DATABASE_URL) {
-    console.error('DATABASE_URL not found in .env.local')
-    console.error('Copy .env.example to .env.local and fill in your Neon connection string.')
+  const { url, from } = resolveDatabaseUrl()
+  if (!url) {
+    console.error('No database connection string found in .env.local')
+    console.error('Set one of: ' + DB_URL_VARS.join(', '))
     process.exit(1)
   }
 
-  const sql = neon(process.env.DATABASE_URL)
+  const sql = neon(url)
+  console.log(`Creating tables (using ${from})...`)
 
-  console.log('Creating tables...')
+  for (const statement of STATEMENTS) {
+    await sql([statement.sql])
+    console.log('  ' + statement.label)
+  }
 
-  // The invite list. Optional — you can run an open RSVP with no guest list at
-  // all — but filling it in unlocks per-party seat limits, invite codes, and
-  // the "who hasn't replied yet" reminder emails.
-  await sql`
-    CREATE TABLE IF NOT EXISTS guests (
-      id           SERIAL PRIMARY KEY,
-      party_name   TEXT NOT NULL,
-      email        TEXT,
-      invite_code  TEXT UNIQUE,
-      max_guests   INT NOT NULL DEFAULT 1,
-      created_at   TIMESTAMPTZ DEFAULT NOW()
-    )
-  `
-
-  // One row per party that responds. `attendees` is JSONB so each named guest
-  // can carry their own meal choice and dietary notes without a second table.
-  await sql`
-    CREATE TABLE IF NOT EXISTS rsvps (
-      id            SERIAL PRIMARY KEY,
-      guest_id      INT REFERENCES guests(id) ON DELETE SET NULL,
-      party_name    TEXT NOT NULL,
-      email         TEXT NOT NULL,
-      attending     BOOLEAN NOT NULL,
-      attendees     JSONB NOT NULL DEFAULT '[]'::jsonb,
-      song_request  TEXT,
-      note          TEXT,
-      created_at    TIMESTAMPTZ DEFAULT NOW(),
-      updated_at    TIMESTAMPTZ DEFAULT NOW()
-    )
-  `
-
-  // Stops the daily cron from mailing the same person the same thing twice.
-  await sql`
-    CREATE TABLE IF NOT EXISTS email_log (
-      id         SERIAL PRIMARY KEY,
-      email      TEXT NOT NULL,
-      kind       TEXT NOT NULL,
-      sent_at    TIMESTAMPTZ DEFAULT NOW()
-    )
-  `
-
-  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_email_log_once ON email_log(email, kind)`
-  await sql`CREATE INDEX IF NOT EXISTS idx_rsvps_email ON rsvps(lower(email))`
-
-  console.log('Tables created:')
-  console.log('  guests          — your invite list (optional)')
-  console.log('  rsvps           — one row per responding party')
-  console.log('  email_log       — which reminder emails already went out')
+  console.log('Done.')
 }
 
 setup().catch(err => {

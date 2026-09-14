@@ -14,6 +14,7 @@
 // email rather than creating duplicates.
 
 const { neon } = require('@neondatabase/serverless')
+const { DB_URL_VARS, resolveDatabaseUrl } = require('../lib/database-url')
 const fs = require('fs')
 const crypto = require('crypto')
 require('dotenv').config({ path: '.env.local' })
@@ -63,8 +64,10 @@ async function main() {
     console.error('Usage: node scripts/import-guests.js guests.csv')
     process.exit(1)
   }
-  if (!process.env.DATABASE_URL) {
-    console.error('DATABASE_URL not found in .env.local')
+  const { url } = resolveDatabaseUrl()
+  if (!url) {
+    console.error('No database connection string found in .env.local')
+    console.error('Set one of: ' + DB_URL_VARS.join(', '))
     process.exit(1)
   }
 
@@ -84,7 +87,7 @@ async function main() {
     process.exit(1)
   }
 
-  const sql = neon(process.env.DATABASE_URL)
+  const sql = neon(url)
   const added = []
   let updated = 0
 
