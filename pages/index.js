@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Layout from '../components/Layout'
 import Countdown from '../components/Countdown'
+import PhotoStrip from '../components/PhotoStrip'
 import config from '../lib/config'
 
 export default function Home() {
@@ -28,6 +29,8 @@ export default function Home() {
 
         <Link href="/rsvp" className="btn">RSVP</Link>
       </section>
+
+      <PhotoStrip />
 
       {showCards && (
         <section className="section section--alt">

@@ -217,6 +217,76 @@ img { max-width: 100%; display: block; }
 }
 .countdown__label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-faint); margin-top: 8px; }
 
+/* --- Photo strip ---------------------------------------------------------- */
+/* Runs edge to edge rather than sitting inside the page gutter, so it reads as
+   a band of pictures rather than a widget in a box. No autoplay: a carousel
+   that moves on its own steals focus, fights the reader, and is a nuisance for
+   anyone using a screen reader. */
+.strip { padding: clamp(48px, 7vw, 76px) 0; border-bottom: 1px solid var(--rule); }
+
+.strip__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-inline: 24px;
+  margin-bottom: 22px;
+}
+
+.strip__arrows { display: flex; gap: 8px; }
+.strip__arrows button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.strip__arrows button:hover:not(:disabled) { border-color: var(--ink); }
+.strip__arrows button:disabled { color: var(--rule); cursor: default; }
+
+.strip__track {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding-inline: 24px;
+  /* Without this the snap points ignore the padding above: the browser scrolls
+     24px on load to sit the first photo flush against the edge, which eats the
+     left gutter and leaves the "previous" arrow looking live when it isn't. */
+  scroll-padding-inline: 24px;
+  /* Hide the scrollbar chrome without disabling the scrolling itself. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.strip__track::-webkit-scrollbar { display: none; }
+.strip__track:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+
+.strip__item {
+  flex: 0 0 auto;
+  margin: 0;
+  scroll-snap-align: start;
+}
+/* A fixed height with automatic width lets portrait and landscape shots sit in
+   one row without cropping either — the row stays level, the pictures keep
+   their own proportions. */
+.strip__item img {
+  height: clamp(220px, 38vw, 400px);
+  width: auto;
+  max-width: none;
+  display: block;
+  object-fit: cover;
+  background: var(--bg-alt);
+}
+
+@media (max-width: 560px) {
+  .strip__arrows { display: none; }   /* swiping is the natural gesture here */
+}
+
 /* --- Schedule ------------------------------------------------------------- */
 .schedule { max-width: var(--prose); margin: 0 auto; }
 .schedule__row {
