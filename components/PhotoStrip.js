@@ -60,11 +60,15 @@ export default function PhotoStrip() {
         ref={trackRef}
         tabIndex={0}
         role="region"
-        aria-label="Photographs of Rory and Nathan"
+        aria-label="Photographs"
       >
-        {photos.map((photo, i) => (
-          <figure className="strip__item" key={photo.src || i}>
-            <img src={photo.src} alt={photo.alt || ''} loading={i < 2 ? 'eager' : 'lazy'} />
+        {/* alt="" marks these as decorative, which is the correct treatment:
+            the strip already announces itself through the region label below,
+            and reading out ten photo descriptions in a row would be worse for
+            a screen reader user than skipping them. */}
+        {photos.map((src, i) => (
+          <figure className="strip__item" key={src}>
+            <img src={src} alt="" loading={i < 2 ? 'eager' : 'lazy'} />
           </figure>
         ))}
       </div>
