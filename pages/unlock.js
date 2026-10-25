@@ -43,7 +43,7 @@ export default function Unlock() {
         <meta name="robots" content="noindex" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&display=swap" rel="stylesheet" />
       </Head>
 
       <main
@@ -58,9 +58,9 @@ export default function Unlock() {
         }}
       >
         <p className="eyebrow">You&rsquo;re invited</p>
-        <h1 style={{ fontSize: 'clamp(2.8rem, 9vw, 4.6rem)' }}>
+        <h1 style={{ fontSize: 'clamp(3rem, 9vw, 4.8rem)', lineHeight: 0.95 }}>
           {config.couple.partnerOne}
-          <span className="hero__amp">and</span>
+          <span className="hero__amp" style={{ display: 'block', fontFamily: 'var(--text)', fontSize: '0.3em', lineHeight: 1, margin: '8px 0' }}>and</span>
           {config.couple.partnerTwo}
         </h1>
         <hr className="rule" />

@@ -1,148 +1,110 @@
-import { useState } from 'react'
 import Layout from '../components/Layout'
+import PageHeading from '../components/PageHeading'
 import config from '../lib/config'
 
 export default function Details() {
+  const venues = config.venues.filter(venue => venue.address)
+  const hasTravel = config.travel.airports.length > 0 || config.travel.hotels.length > 0 || config.travel.shuttle
+
   return (
     <Layout title="Details" description={`Schedule, venue and travel details for ${config.coupleNames}.`}>
-      {config.schedule.length > 0 && (
       <section className="section">
-        <div className="inner center" style={{ marginBottom: 48 }}>
-          <p className="eyebrow">{config.weddingDateLabel}</p>
-          <h2>The day</h2>
-          <hr className="rule" />
-        </div>
-
-        <div className="schedule">
-          {config.schedule.map(item => (
-            <div className="schedule__row" key={item.time + item.title}>
-              <div className="schedule__time">{item.time}</div>
-              <div>
-                <h3>{item.title}</h3>
-                {item.detail && <p className="schedule__detail">{item.detail}</p>}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-      )}
-
-      <section className="section section--alt">
-        <div className="inner center" style={{ marginBottom: 48 }}>
-          <p className="eyebrow">Where to go</p>
-          <h2>The venue</h2>
-          <hr className="rule" />
-        </div>
-
-        <div className="inner cards">
-          {config.venues.map(v => (
-            <article className="card" key={v.venue + v.name}>
-              <p className="eyebrow" style={{ marginBottom: 10 }}>{v.name}</p>
-              <h3>{v.venue}</h3>
-              <p className="card__meta">{v.address}</p>
-              {v.note && <p className="card__meta" style={{ marginTop: 12 }}>{v.note}</p>}
-              {v.mapQuery && (
-                <p className="card__meta" style={{ marginTop: 16 }}>
-                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.mapQuery)}`} target="_blank" rel="noopener noreferrer">
-                    Directions &rarr;
-                  </a>
-                </p>
-              )}
-            </article>
-          ))}
-
-          {config.dressCode.detail && (
-            <article className="card">
-              <p className="eyebrow" style={{ marginBottom: 10 }}>What to wear</p>
-              <h3>{config.dressCode.label}</h3>
-              <p className="card__meta" style={{ marginTop: 10 }}>{config.dressCode.detail}</p>
-            </article>
-          )}
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="inner center" style={{ marginBottom: 48 }}>
-          <p className="eyebrow">Getting here &amp; staying over</p>
-          <h2>Travel</h2>
-          <hr className="rule" />
-          <p className="inner--prose" style={{ margin: '0 auto', color: 'var(--ink-soft)' }}>
-            {config.travel.intro}
-          </p>
-        </div>
-
-        <div className="inner cards">
-          {config.travel.airports.length > 0 && (
-          <article className="card">
-            <p className="eyebrow" style={{ marginBottom: 14 }}>Nearest airports</p>
-            {config.travel.airports.map(a => (
-              <div key={a.name} style={{ marginBottom: 14 }}>
-                <div>{a.name}</div>
-                <div className="card__meta">{a.detail}</div>
+        <PageHeading title="The celebration" note={config.weddingDateLabel}>
+          <p>{config.dateTbd
+            ? 'A day with our favorite people. We are working out the details, and we will share them here.'
+            : 'The places to be, the plans for the day, and everything you need to join us.'}</p>
+        </PageHeading>
+        {config.schedule.length > 0 && (
+          <div className="schedule">
+            <h2 className="schedule__heading">The day ahead</h2>
+            {config.schedule.map(item => (
+              <div className="schedule__row" key={item.time + item.title}>
+                <div className="schedule__time">{item.time}</div>
+                <div>
+                  <h3>{item.title}</h3>
+                  {item.detail && <p className="schedule__detail">{item.detail}</p>}
+                </div>
               </div>
             ))}
-          </article>
-          )}
-
-          {config.travel.hotels.map(h => (
-            <article className="card" key={h.name}>
-              <p className="eyebrow" style={{ marginBottom: 10 }}>Where to stay</p>
-              <h3>{h.name}</h3>
-              <p className="card__meta" style={{ marginTop: 8 }}>{h.detail}</p>
-              <p className="card__meta">{h.distance}</p>
-              {h.url && (
-                <p className="card__meta" style={{ marginTop: 14 }}>
-                  <a href={h.url} target="_blank" rel="noopener noreferrer">Book a room &rarr;</a>
-                </p>
-              )}
-            </article>
-          ))}
-
-          {config.travel.shuttle && (
-            <article className="card">
-              <p className="eyebrow" style={{ marginBottom: 10 }}>Shuttle</p>
-              <p className="card__meta" style={{ marginTop: 6 }}>{config.travel.shuttle}</p>
-            </article>
-          )}
-        </div>
-      </section>
-
-      <section className="section section--alt">
-        <div className="inner center" style={{ marginBottom: 40 }}>
-          <p className="eyebrow">Anything else</p>
-          <h2>Questions</h2>
-          <hr className="rule" />
-        </div>
-        <Faq items={config.faq} />
-      </section>
-    </Layout>
-  )
-}
-
-function Faq({ items }) {
-  const [openIndex, setOpenIndex] = useState(0)
-
-  return (
-    <div className="faq">
-      {items.map((item, i) => {
-        const open = openIndex === i
-        return (
-          <div className="faq__item" key={item.q}>
-            <button
-              className="faq__q"
-              onClick={() => setOpenIndex(open ? -1 : i)}
-              aria-expanded={open}
-              aria-controls={`faq-a-${i}`}
-            >
-              <span>{item.q}</span>
-              <span className="faq__sign" aria-hidden="true">{open ? '−' : '+'}</span>
-            </button>
-            <div id={`faq-a-${i}`} hidden={!open}>
-              <p className="faq__a">{item.a}</p>
-            </div>
           </div>
-        )
-      })}
-    </div>
+        )}
+      </section>
+
+      {(venues.length > 0 || config.dressCode.detail) && (
+        <section className="section section--alt">
+          <div className="inner section-heading center"><h2>Meet us here</h2></div>
+          <div className="venue">
+            {venues.map(venue => (
+              <div className="venue__block" key={venue.venue + venue.name}>
+                <p className="eyebrow">{venue.name}</p>
+                <h3>{venue.venue}</h3>
+                <p className="venue__note">{venue.address}</p>
+                {venue.note && <p className="venue__note">{venue.note}</p>}
+                {venue.mapQuery && (
+                  <a className="text-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue.mapQuery)}`} target="_blank" rel="noopener noreferrer">Directions</a>
+                )}
+              </div>
+            ))}
+            {config.dressCode.detail && (
+              <div className="venue__block">
+                <p className="eyebrow">What to wear</p>
+                <h3>{config.dressCode.label}</h3>
+                <p className="venue__note">{config.dressCode.detail}</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      <section className={hasTravel ? 'section' : 'section section--compact'}>
+        <div className="inner inner--prose center section-heading">
+          <h2>Make a weekend of it</h2>
+          <p className="section-intro">{config.travel.intro}</p>
+        </div>
+        {hasTravel && (
+          <div className="travel">
+            {config.travel.airports.length > 0 && (
+              <div className="travel__block">
+                <h3>Nearest airports</h3>
+                {config.travel.airports.map(airport => (
+                  <div className="travel-option" key={airport.name}>
+                    <div>{airport.name}</div>
+                    <p className="venue__note">{airport.detail}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            {config.travel.hotels.map(hotel => (
+              <div className="travel__block" key={hotel.name}>
+                <h3>{hotel.name}</h3>
+                <p className="venue__note">{hotel.detail}</p>
+                <p className="venue__note">{hotel.distance}</p>
+                {hotel.url && <a className="text-link" href={hotel.url} target="_blank" rel="noopener noreferrer">Book a room</a>}
+              </div>
+            ))}
+            {config.travel.shuttle && (
+              <div className="travel__block">
+                <h3>Shuttle</h3>
+                <p className="venue__note">{config.travel.shuttle}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+
+      {config.faq.length > 0 && (
+        <section className="section section--alt">
+          <div className="inner center section-heading"><h2>A few things to know</h2></div>
+          <div className="faq">
+            {config.faq.map(item => (
+              <details className="faq__item" key={item.q}>
+                <summary className="faq__q">{item.q}<span className="faq__sign" aria-hidden="true" /></summary>
+                <p className="faq__a">{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+      )}
+    </Layout>
   )
 }

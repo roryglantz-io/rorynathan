@@ -3,17 +3,15 @@
 A self-contained Next.js wedding site for **Rory & Nathan**: RSVP with meal
 choices, details & travel, registry, and save-the-date / reminder emails.
 
-It lives in this repo but is a **separate project** — it has its own
-`package.json` and never imports from the KudoBoard app above it. To move it to
-its own repo: copy the `wedding/` folder somewhere, `git init`, done.
+The app lives at the repository root. Use Node.js 20.9 or later.
 
 ---
 
 ## Start here
 
 **1. Put your own details in `lib/config.js`.**
-That one file holds every word a guest reads. Date and venue are currently
-marked TBD — see *While the date is unset* below.
+That file holds the couple’s names, dates, venues, and guest information.
+Date and venue are currently marked TBD — see *While the date is unset* below.
 
 **2. Get the accounts you need.**
 A [Vercel](https://vercel.com) account alone is enough to start: add a Postgres
@@ -33,8 +31,8 @@ emails. Skip it until you have a date — those features stay dormant until then
 
 **3. Configure and run:**
 ```bash
-cd wedding
-npm install
+cd rorynathan
+npm ci
 cp .env.example .env.local     # then fill in the values
 npm run setup-db               # creates the tables
 npm run dev                    # http://localhost:3000
@@ -52,8 +50,16 @@ statements from `lib/schema.js`:
 All three are verified to produce an identical schema — same 20 columns, same
 6 indexes, same ON DELETE behaviour on the foreign key.
 
-**4. Deploy.** Import the repo on Vercel and set the **Root Directory** to
-`wedding`. Add every variable from `.env.example` in the Vercel dashboard.
+**4. Deploy.** Import the repo on Vercel. Leave **Root Directory** at the
+repository root, not `wedding`. Configure the variables from `.env.example`.
+Use Node.js 24 in the Vercel project settings.
+
+**5. Check the build and routes:**
+```bash
+npm test
+```
+This builds the app and checks six page routes on a temporary local server.
+It does not test database writes, email delivery, or browser interactions.
 
 > Generate the two secrets with `openssl rand -hex 32`.
 
@@ -80,19 +86,18 @@ switch on by themselves.
 
 ## Design
 
-Black and white, no colour anywhere. Hierarchy comes from scale, weight,
-letter-spacing and hairline rules.
+Black and white, with no colour. Hierarchy comes from scale, weight, and
+hairline rules.
 
-- **Pinyon Script** — the couple's names and section headings only. Never used
-  below about 1.8rem, where a script this fine stops being readable.
-- **Times New Roman** — everything else, including subheadings, body, labels,
-  buttons and numerals. It's a system font, so it costs no network request.
+- **Bodoni Moda** — the couple's names and page titles. It is a Didone, the
+  face an engraved invitation would use.
+- **Baskerville** — body text, labels, buttons, and numerals. Palatino and
+  Georgia provide fallbacks.
 
-Because nothing is distinguished by colour, links are underlined rather than
-tinted. Every text tone clears WCAG AA on both backgrounds: ink 17.4:1,
-ink-soft 11.3:1, ink-faint 6.3:1 at worst.
+Links are underlined because colour cannot mark them. The text tones clear
+WCAG AA on both backgrounds.
 
-To re-theme, change the six values at the top of `styles/globals.css`.
+To re-theme, change the six colour values at the top of `styles/globals.css`.
 
 ---
 

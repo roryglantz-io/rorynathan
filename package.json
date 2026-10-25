@@ -9,16 +9,20 @@
     "start": "next start",
     "setup-db": "node scripts/setup-db.js",
     "import-guests": "node scripts/import-guests.js",
-    "schema:sql": "node scripts/gen-schema-sql.js"
+    "schema:sql": "node scripts/gen-schema-sql.js",
+    "test": "npm run build && node scripts/smoke.mjs"
   },
   "dependencies": {
     "dotenv": "^17.3.1",
-    "next": "^14.2.0",
+    "next": "^16.4.2",
     "postgres": "^3.4.9",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "resend": "^3.2.0",
     "sonner": "^1.5.0",
     "swr": "^2.2.0"
+  },
+  "engines": {
+    "node": ">=20.9.0"
   }
 }

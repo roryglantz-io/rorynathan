@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { toast } from 'sonner'
 import Layout from '../components/Layout'
+import PageHeading from '../components/PageHeading'
 import config from '../lib/config'
 
 const MEALS = [
@@ -138,13 +139,14 @@ export default function Rsvp() {
   return (
     <Layout title="RSVP" description={`RSVP for ${config.coupleNames}, ${config.weddingDateLabel}.`}>
       <section className="section">
-        <div className="inner center" style={{ marginBottom: 44 }}>
-          <p className="eyebrow">
-            {config.rsvpDeadlineLabel ? `Kindly reply by ${config.rsvpDeadlineLabel}` : 'We\u2019d love to hear from you'}
-          </p>
-          <h2>RSVP</h2>
-          <hr className="rule" />
-        </div>
+        <PageHeading
+          title={config.dateTbd ? 'Stay in the loop.' : 'Celebrate with us.'}
+          note={config.rsvpDeadlineLabel ? `Kindly reply by ${config.rsvpDeadlineLabel}` : 'We\u2019d love to hear from you'}
+        >
+          <p>{config.dateTbd
+            ? 'We haven\u2019t set a date yet. Leave your details and a tentative reply. We\u2019ll share our plans as they come together.'
+            : 'Let us know who\u2019s joining us. We can\u2019t wait to see you.'}</p>
+        </PageHeading>
 
         {closed ? (
           <div className="inner inner--prose center">

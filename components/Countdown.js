@@ -28,12 +28,12 @@ export default function Countdown() {
   }, [])
 
   // Nothing to count down to yet. Take up no room rather than showing zeros.
-  if (config.dateTbd) return <div style={{ height: 24 }} />
+  if (config.dateTbd) return null
 
-  if (!mounted) return <div className="countdown" aria-hidden="true" style={{ minHeight: 86 }} />
+  if (!mounted) return <div className="countdown" aria-hidden="true" style={{ minHeight: 74 }} />
 
   if (!left) {
-    return <p className="hero__meta" style={{ margin: '34px 0 40px' }}>Today&rsquo;s the day</p>
+    return <p className="hero__meta" style={{ margin: '0 0 clamp(24px, 4vw, 36px)' }}>Today&rsquo;s the day</p>
   }
 
   const units = [

@@ -16,7 +16,9 @@ export default function Layout({ children, title, description }) {
   const router = useRouter()
 
   const pageTitle = title ? `${title} — ${config.coupleNames}` : `${config.coupleNames} — ${config.weddingDateLabel}`
-  const desc = description || `${config.coupleNames} are getting married on ${config.weddingDateLabel} in ${config.location}.`
+  const desc = description || (config.dateTbd
+    ? `Join ${config.coupleNames} as they plan their wedding. Details and updates to come.`
+    : `Celebrate with ${config.coupleNames} on ${config.weddingDateLabel}. ${config.location}.`)
 
   return (
     <>
@@ -29,24 +31,27 @@ export default function Layout({ children, title, description }) {
         <meta property="og:type" content="website" />
       </Head>
 
+      <a className="skip-link" href="#main-content">Skip to content</a>
       <header className="nav">
         <div className="nav__inner">
           <Link href="/" className="nav__brand" onClick={() => setOpen(false)}>
-            {/* The couple's names are the alt text, so screen readers and search
-                results get "Rory & Nathan" rather than an unlabelled graphic. */}
-            <img src="/monogram.png" alt={config.coupleNames} />
+            <span className="sr-only">{config.coupleNames} home</span>
+            <span className="brand-mark" aria-hidden="true">
+              {config.couple.partnerOne[0]}<span>&amp;</span>{config.couple.partnerTwo[0]}
+            </span>
           </Link>
 
           <button
             className="nav__toggle"
             onClick={() => setOpen(v => !v)}
             aria-expanded={open}
+            aria-controls="main-navigation"
             aria-label={open ? 'Close menu' : 'Open menu'}
           >
             {open ? '✕' : '☰'}
           </button>
 
-          <nav className="nav__links" data-open={open}>
+          <nav id="main-navigation" className="nav__links" aria-label="Main navigation" data-open={open} onKeyDown={event => { if (event.key === 'Escape') setOpen(false) }}>
             {LINKS.map(link => (
               <Link
                 key={link.href}
@@ -62,15 +67,16 @@ export default function Layout({ children, title, description }) {
         </div>
       </header>
 
-      <main>{children}</main>
+      <main id="main-content" tabIndex={-1}>{children}</main>
 
       <footer className="footer">
-        <p>{config.coupleNames} &middot; {config.weddingDateLabel}</p>
-        <p>{config.location}</p>
+        <div className="footer__names">{config.coupleNames}</div>
+        <p>{config.weddingDateLabel}</p>
+        {!config.locationTbd && <p>{config.location}</p>}
         {config.couple.hashtag && <p>{config.couple.hashtag}</p>}
-        <p>
-          Questions? <a href={`mailto:${config.contactEmail}`}>{config.contactEmail}</a>
-        </p>
+        {config.contactEmail && config.contactEmail !== 'hello@example.com' && (
+          <p>Questions? <a href={`mailto:${config.contactEmail}`}>{config.contactEmail}</a></p>
+        )}
       </footer>
     </>
   )
