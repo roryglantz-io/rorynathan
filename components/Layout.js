@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -8,11 +8,11 @@ const LINKS = [
   { href: '/', label: 'Home' },
   { href: '/details', label: 'Details' },
   { href: '/registry', label: 'Registry' },
-  { href: '/rsvp', label: 'RSVP' },
 ]
 
 export default function Layout({ children, title, description }) {
   const [open, setOpen] = useState(false)
+  const toggleRef = useRef(null)
   const router = useRouter()
 
   const pageTitle = title ? `${title} — ${config.coupleNames}` : `${config.coupleNames} — ${config.weddingDateLabel}`
@@ -39,9 +39,13 @@ export default function Layout({ children, title, description }) {
             <span className="brand-mark" aria-hidden="true">
               {config.couple.partnerOne[0]}<span>&amp;</span>{config.couple.partnerTwo[0]}
             </span>
+            <span className="brand-surprise" aria-hidden="true">
+              <span>♡</span><span>♡</span><span>♡</span>
+            </span>
           </Link>
 
           <button
+            ref={toggleRef}
             className="nav__toggle"
             onClick={() => setOpen(v => !v)}
             aria-expanded={open}
@@ -51,7 +55,12 @@ export default function Layout({ children, title, description }) {
             {open ? '✕' : '☰'}
           </button>
 
-          <nav id="main-navigation" className="nav__links" aria-label="Main navigation" data-open={open} onKeyDown={event => { if (event.key === 'Escape') setOpen(false) }}>
+          <nav id="main-navigation" className="nav__links" aria-label="Main navigation" data-open={open} onKeyDown={event => {
+            if (event.key === 'Escape') {
+              setOpen(false)
+              toggleRef.current?.focus()
+            }
+          }}>
             {LINKS.map(link => (
               <Link
                 key={link.href}

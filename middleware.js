@@ -6,7 +6,7 @@ export const config = {
   // behind it (locking those would make the site impossible to enter), and
   // the cron endpoint, which Vercel calls with no cookie and which already
   // authenticates itself with CRON_SECRET.
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|robots.txt|unlock|api/unlock|api/cron).*)'],
+  matcher: ['/((?!_next/static|favicon.ico|robots.txt|unlock|api/unlock|api/cron).*)'],
 }
 
 export async function middleware(req) {

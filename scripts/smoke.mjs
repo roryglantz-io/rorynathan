@@ -15,6 +15,25 @@ let logs = ''
 server.stdout.on('data', chunk => { logs += chunk })
 server.stderr.on('data', chunk => { logs += chunk })
 
+const publicRoutes = ['/', '/details', '/registry']
+const registryUrl = 'https://www.bloomingdales.com/registry/Rory-Glantz-Nathan-Pedowitz/1918053'
+
+function textContent(html) {
+  return html
+    .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&#x27;|&#39;|&apos;|’/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function pageLinks(html) {
+  return Array.from(html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi), ([, attributes, content]) => ({
+    href: attributes.match(/\bhref=(["'])(.*?)\1/i)?.[2],
+    attributes,
+    text: textContent(content),
+  })).filter(link => link.href)
+}
 try {
   // Wait for this process, not an unrelated server already using the port.
   for (let attempt = 0; !logs.includes('Ready in'); attempt++) {
@@ -25,19 +44,42 @@ try {
   for (const path of ['/', '/details', '/registry', '/rsvp', '/unlock', '/admin']) {
     const response = await fetch(`${baseUrl}${path}`, { signal: AbortSignal.timeout(10000) })
     assert.equal(response.status, 200, path)
+    assert(response.headers.get('x-robots-tag')?.split(/,\s*/).includes('noindex'), `${path}: indexing header missing`)
     const html = await response.text()
+    assert(/<meta\b[^>]*name=["']robots["'][^>]*content=["'][^"']*\bnoindex\b/i.test(html), `${path}: noindex metadata missing`)
 
-    if (['/', '/details', '/registry', '/rsvp'].includes(path)) {
-      assert(html.includes('<h1'), `${path}: missing main heading`)
-      assert(html.includes('id="main-content"'), `${path}: missing skip target`)
-      assert(!html.includes('hello@example.com'), `${path}: placeholder contact exposed`)
+    if ([...publicRoutes, '/rsvp'].includes(path)) {
+      assert(/<h1\b/i.test(html), `${path}: missing main heading`)
+      assert(/<main\b/i.test(html), `${path}: missing main content landmark`)
     }
-    if (path === '/details') {
-      const { default: config } = await import('../lib/config.js')
-      if (config.faq.length) assert(html.includes('<details class="faq__item"'), 'FAQ disclosure missing')
+    if (publicRoutes.includes(path)) {
+      const body = html.match(/<body\b[^>]*>([\s\S]*?)<\/body>/i)?.[1]
+      assert(body, `${path}: missing page body`)
+      const text = textContent(body)
+      assert(text.includes('June 6, 2027'), `${path}: confirmed date missing`)
+      assert(text.includes('Penn Valley, PA'), `${path}: confirmed location missing`)
+      assert(!/\b(?:to be announced|to be confirmed|TBD)\b/i.test(text), `${path}: placeholder details exposed`)
+      assert(!/\b(?:schedule|ceremony|reception|dress code|shuttle|hotels|airports)\b/i.test(text), `${path}: unconfirmed event or travel details exposed`)
+      assert(!pageLinks(body).some(link => new URL(link.href, baseUrl).pathname.replace(/\/$/, '') === '/rsvp'), `${path}: public RSVP link exposed`)
+    }
+    if (path === '/registry') {
+      const link = pageLinks(html).find(item => item.href === registryUrl)
+      assert(link, 'Registry: confirmed Bloomingdale’s link missing')
+      assert(/Bloomingdale/i.test(link.text), 'Registry: link needs a descriptive accessible name')
+      if (/\btarget=["']_blank["']/i.test(link.attributes)) {
+        const rel = link.attributes.match(/\brel=(["'])(.*?)\1/i)?.[2].split(/\s+/) || []
+        assert(rel.includes('noopener') && rel.includes('noreferrer'), 'Registry: new-tab link needs safe rel attributes')
+      }
+      assert(!/<iframe\b/i.test(html), 'Registry: unsupported embedded registry exposed')
     }
     console.log(`PASS ${path}: HTTP 200 and page assertions`)
   }
+  const imageResponse = await fetch(`${baseUrl}/photos/engagement-4538.webp`)
+  assert.equal(imageResponse.status, 200, 'Engagement photo missing')
+  assert(imageResponse.headers.get('x-robots-tag')?.includes('noimageindex'), 'Photo indexing directive missing')
+  const missingResponse = await fetch(`${baseUrl}/not-a-wedding-page`)
+  assert.equal(missingResponse.status, 404)
+  assert(missingResponse.headers.get('x-robots-tag')?.includes('noindex'), '404 indexing directive missing')
 } finally {
   server.kill('SIGTERM')
 }

@@ -1,40 +1,37 @@
 # Wedding Website
 
-A self-contained Next.js wedding site for **Rory & Nathan**: RSVP with meal
-choices, details & travel, registry, and save-the-date / reminder emails.
+A Next.js wedding site for **Rory & Nathan**, June 6, 2027, in Penn Valley, PA.
+The public site contains engagement photographs, Details, and the Bloomingdale’s registry.
 
-The app lives at the repository root. Use Node.js 20.9 or later.
+The app lives at the repository root. Use Node.js 24.
 
 ---
 
 ## Start here
 
-**1. Put your own details in `lib/config.js`.**
-That file holds the couple’s names, dates, venues, and guest information.
-Date and venue are currently marked TBD — see *While the date is unset* below.
+**1. Edit `lib/config.js`.**
+That file holds names, the confirmed date, location, named photo roles, and the registry link.
+Details remain deliberately sparse until the plans are final.
 
-**2. Get the accounts you need.**
-A [Vercel](https://vercel.com) account alone is enough to start: add a Postgres
-database from its Storage tab and Vercel provisions it and injects the
-connection string into the project, so there's no second signup and no string
-to copy. Any Postgres works — Supabase, Neon, or your own server. The app uses the
-standard `postgres` driver over plain PostgreSQL, with nothing vendor-specific
-in the schema or the queries, and is tested against stock PostgreSQL 16.
+**2. Add services only when needed.**
+The current public pages do not need a database or email account.
+To enable RSVP and guest administration later, configure a PostgreSQL database.
+The app uses the standard `postgres` driver, with a vendor-independent schema.
 
 Connections are configured for serverless and for pooled Postgres: one
 connection per instance, TLS on anything that isn't localhost, and prepared
 statements disabled — Supabase and any pgbouncer in transaction mode can't
 hold prepared statements across pooled connections.
 
-[Resend](https://resend.com) is only needed for save-the-date and reminder
-emails. Skip it until you have a date — those features stay dormant until then.
+[Resend](https://resend.com) is needed only for save-the-date and reminder emails.
+Do not send emails until the guest list and invitation information are ready.
 
 **3. Configure and run:**
 ```bash
 cd rorynathan
 npm ci
-cp .env.example .env.local     # then fill in the values
-npm run setup-db               # creates the tables
+cp .env.example .env.local     # optional for public-page development
+# Configure a database before running npm run setup-db.
 npm run dev                    # http://localhost:3000
 ```
 
@@ -50,54 +47,58 @@ statements from `lib/schema.js`:
 All three are verified to produce an identical schema — same 20 columns, same
 6 indexes, same ON DELETE behaviour on the foreign key.
 
-**4. Deploy.** Import the repo on Vercel. Leave **Root Directory** at the
-repository root, not `wedding`. Configure the variables from `.env.example`.
-Use Node.js 24 in the Vercel project settings.
+**4. Deploy.** The Vercel project is `darthcater-4055s-projects/rorynathan`.
+Use the repository root, the Next.js preset, and Node.js 24.
+Cloudflare manages DNS for `roryandnathan.com`; Vercel hosts the app.
+Production uses `NEXT_PUBLIC_BASE_URL=https://roryandnathan.com`.
+`www.roryandnathan.com` redirects to the apex domain.
 
 **5. Check the build and routes:**
 ```bash
 npm test
 ```
-This builds the app and checks six page routes on a temporary local server.
-It does not test database writes, email delivery, or browser interactions.
+This builds the app and checks six page routes on a temporary production server.
+It also checks the registry destination, hidden RSVP links, and noindex directives on pages, photos, and a 404.
+It does not submit RSVP data, send emails, or replace browser checks.
 
 > Generate the two secrets with `openssl rand -hex 32`.
 
 ---
 
-## While the date is unset
+## Current public state
 
-`lib/config.js` starts with `dateTbd: true` and `rsvpDeadline: null`. In that
-state the site says so plainly rather than showing placeholder dates:
+- The wedding date is June 6, 2027; the location is Penn Valley, PA.
+- Details shows only the known date, location, and a note that plans are still being finalized.
+- RSVP links and the information-collection button are hidden.
+- The `/rsvp` route and backend remain available for later setup; hiding navigation does not disable them.
+- The reply deadline remains `null`, so reminder emails remain dormant.
+- The registry links directly to the couple’s Bloomingdale’s registry. No unsupported iframe is used.
 
-- the countdown is hidden entirely,
-- the RSVP form stays open with no deadline, and asks "do you think you can
-  make it?" instead of "will you be joining us?",
-- reminder emails do nothing, because there's nothing to count down to,
-- sections with nothing in them yet — airports, hotels, dress code, the venue
-  map link — are hidden rather than rendered empty.
+## Search indexing
 
-When you have a date: set `dateTbd: false`, fill in `weddingDate`,
-`weddingDateLabel` and `location`, then set `rsvpDeadline` and
-`rsvpDeadlineLabel`. The countdown, the deadline copy and the reminder cron all
-switch on by themselves.
+Every page includes `noindex, nofollow, noimageindex` metadata.
+All responses also carry these directives in `X-Robots-Tag`, including photo assets and error pages.
+These directives ask compliant search engines not to index the site. They are not access control.
+Use `SITE_PASSWORD` for the separate guest password gate.
+Gated builds serve photographs directly with the guest cookie instead of using the image optimizer.
+The middleware also gates optimizer URLs, including previously cached derivatives.
 
 ---
 
 ## Design
 
-Black and white, with no colour. Hierarchy comes from scale, weight, and
-hairline rules.
+The interface stays black and white; the engagement photographs retain their original colors.
 
-- **Bodoni Moda** — the couple's names and page titles. It is a Didone, the
-  face an engraved invitation would use.
-- **Baskerville** — body text, labels, buttons, and numerals. Palatino and
-  Georgia provide fallbacks.
+- **Dancing Script**, weight 700, gives the couple’s names a bold, calligraphic wedding style.
+- **Bitter**, weights 400–600, keeps headings, dates, navigation, and body text readable.
+- Both fonts use bundled Latin WOFF2 files through `next/font/local`; visitors make no Google Fonts requests.
+- Three overlapping photographs open the page. A bounded sticky portrait anchors the desktop date section.
+- Mobile and touch layouts use normal document flow. Logo hearts appear on hover or keyboard focus.
+- Reduced-motion settings remove the heart movement.
 
-Links are underlined because colour cannot mark them. The text tones clear
-WCAG AA on both backgrounds.
-
-To re-theme, change the six colour values at the top of `styles/globals.css`.
+The photos come from the downloaded originals, not Drive thumbnails. Portraits use 2000 × 2500 crops;
+the wide photo uses a 3200px source. Files omit source metadata and use responsive `next/image` delivery.
+Each named photo in `lib/config.js` keeps its source path with its alternative text.
 
 ---
 
@@ -153,10 +154,10 @@ seats you've held for them.
 
 | Route | What it is |
 |---|---|
-| `/` | Names, date, and where things stand |
-| `/details` | Schedule, venue, dress code, travel, FAQ |
-| `/registry` | Registry links |
-| `/rsvp` | The RSVP form |
+| `/` | Engagement photographs, confirmed date and location |
+| `/details` | Known date/location and a finalizing-details note |
+| `/registry` | Bloomingdale’s registry link |
+| `/rsvp` | Retained RSVP form, hidden from public navigation |
 | `/unlock` | Password prompt, when `SITE_PASSWORD` is set |
 | `/admin` | **Private.** Head count, meal totals, dietary notes, CSV export, who hasn't replied, save-the-date sending |
 

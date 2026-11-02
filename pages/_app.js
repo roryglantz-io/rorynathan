@@ -1,22 +1,33 @@
-import Head from 'next/head'
-import { Toaster } from 'sonner'
+import localFont from 'next/font/local'
 import '../styles/globals.css'
+
+const weddingFont = localFont({
+  src: [
+    { path: '../node_modules/@fontsource-variable/bitter/files/bitter-latin-wght-normal.woff2', weight: '100 900', style: 'normal' },
+    { path: '../node_modules/@fontsource-variable/bitter/files/bitter-latin-wght-italic.woff2', weight: '100 900', style: 'italic' },
+  ],
+  display: 'swap',
+  fallback: ['Georgia'],
+})
+
+const namesFont = localFont({
+  src: '../node_modules/@fontsource-variable/dancing-script/files/dancing-script-latin-wght-normal.woff2',
+  weight: '400 700',
+  display: 'swap',
+  fallback: ['Georgia'],
+})
 
 export default function App({ Component, pageProps }) {
   return (
     <>
-      <Head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* One display face, loaded in the two weights the site uses. Body text
-            stays on system serif fonts, so it costs no extra request. */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&display=swap"
-          rel="stylesheet"
-        />
-      </Head>
+      <style jsx global>{`
+        :root {
+          --display: ${weddingFont.style.fontFamily};
+          --text: ${weddingFont.style.fontFamily};
+          --names: ${namesFont.style.fontFamily};
+        }
+      `}</style>
       <Component {...pageProps} />
-      <Toaster position="bottom-center" />
     </>
   )
 }

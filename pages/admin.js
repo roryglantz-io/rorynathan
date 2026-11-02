@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import useSWR from 'swr'
-import { toast } from 'sonner'
+import { toast, Toaster } from 'sonner'
 import Layout from '../components/Layout'
 
 // The token lives in localStorage so the couple can bookmark /admin and stay
@@ -87,6 +87,7 @@ function Dashboard({ token, onSignOut }) {
 
     return (
       <Layout title="Admin">
+        <Toaster position="bottom-center" />
         <section className="section">
           <div className="inner inner--prose">
             <div className="alert alert--error">
@@ -114,6 +115,7 @@ function Dashboard({ token, onSignOut }) {
 
   return (
     <Layout title="Admin">
+      <Toaster position="bottom-center" />
       <section className="section">
         <div className="inner">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 16, marginBottom: 36 }}>

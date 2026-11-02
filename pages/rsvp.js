@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { toast } from 'sonner'
+import { toast, Toaster } from 'sonner'
 import Layout from '../components/Layout'
 import PageHeading from '../components/PageHeading'
 import config from '../lib/config'
@@ -111,6 +111,7 @@ export default function Rsvp() {
   if (done) {
     return (
       <Layout title="Thank you">
+        <Toaster position="bottom-center" />
         <section className="section">
           <div className="inner inner--prose center">
             <p className="eyebrow">{done.updated ? 'Reply updated' : 'Reply received'}</p>
@@ -138,6 +139,7 @@ export default function Rsvp() {
 
   return (
     <Layout title="RSVP" description={`RSVP for ${config.coupleNames}, ${config.weddingDateLabel}.`}>
+      <Toaster position="bottom-center" />
       <section className="section">
         <PageHeading
           title={config.dateTbd ? 'Stay in the loop.' : 'Celebrate with us.'}
