@@ -110,6 +110,10 @@ The registry page displays the complete Bloomingdale’s registry, including pri
 photographs, purchased quantities, and availability. The data comes from Bloomingdale’s
 public registry endpoint, not a Firecrawl dependency.
 The homepage uses a single Registry link. The catalog heading does not repeat the retailer name.
+The catalog matches Bloomingdale’s registry filters: category, Purchased / Still needed / Unavailable,
+five price bands, a custom price range, recent or price sorting, and 20/40-item pagination.
+Product images, titles, and “Shop this gift” links open the exact Bloomingdale’s product page in a
+new tab with an origin referrer. Guests add the item to their bag on Bloomingdale’s page.
 
 `lib/registry.js` can read all registry products locally and hash their normalized data.
 Hosted refresh attempts currently receive HTTP 403 from Bloomingdale’s on Vercel and

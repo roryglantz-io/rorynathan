@@ -23,6 +23,7 @@ function textContent(html) {
   return html
     .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, '')
     .replace(/<[^>]*>/g, ' ')
+    .replace(/&amp;|&#38;/g, '&')
     .replace(/&#x27;|&#39;|&apos;|’/g, "'")
     .replace(/\s+/g, ' ')
     .trim()
@@ -71,12 +72,13 @@ try {
       assert(!pageLinks(body).some(link => new URL(link.href, baseUrl).pathname.replace(/\/$/, '') === '/rsvp'), `${path}: public RSVP link exposed`)
     }
     if (path === '/registry') {
-      const link = pageLinks(html).find(item => item.href === registryUrl)
-      assert(link, 'Registry: confirmed Bloomingdale’s link missing')
-      if (/\btarget=["']_blank["']/i.test(link.attributes)) {
-        const rel = link.attributes.match(/\brel=(["'])(.*?)\1/i)?.[2].split(/\s+/) || []
-        assert(rel.includes('noopener') && rel.includes('noreferrer'), 'Registry: new-tab link needs safe rel attributes')
+      const text = textContent(html)
+      for (const label of ['Category', 'Status', 'Price', 'Dining & Serveware', 'Purchased', 'Still needed', 'Unavailable', 'Custom range', 'Recently added']) {
+        assert(text.includes(label), `Registry: ${label} control missing`)
       }
+      const productLinks = pageLinks(html).filter(item => item.href.startsWith('https://www.bloomingdales.com/shop/product/'))
+      assert(productLinks.length > 0, 'Registry: product-page links missing')
+      assert(productLinks.every(link => /\btarget=["']_blank["']/i.test(link.attributes) && /\brel=["'][^"']*\bnoopener\b[^"']*["']/i.test(link.attributes) && /\breferrerpolicy=["']origin["']/i.test(link.attributes)), 'Registry: product links need a new tab, opener protection, and an origin referrer')
       assert(!/<iframe\b/i.test(html), 'Registry: unsupported embedded registry exposed')
     }
     console.log(`PASS ${path}: HTTP 200 and page assertions`)
