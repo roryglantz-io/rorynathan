@@ -1,4 +1,4 @@
-import { getRegistryCatalog, REFRESH_SECONDS } from '../../lib/registry'
+import { getRegistryCatalog, savedCatalog, REFRESH_SECONDS } from '../../lib/registry'
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -6,17 +6,18 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
+  let catalog
   try {
-    const catalog = await getRegistryCatalog()
-    const etag = `"${catalog.version}"`
-    res.setHeader('Cache-Control', `public, max-age=0, s-maxage=${REFRESH_SECONDS}, stale-while-revalidate=60`)
-    res.setHeader('ETag', etag)
-    res.setHeader('X-Registry-Checked-At', catalog.checkedAt)
-    if (req.headers['if-none-match'] === etag) return res.status(304).end()
-    const { checkedAt, ...body } = catalog
-    return res.status(200).json(body)
-  } catch {
-    res.setHeader('Cache-Control', 'no-store')
-    return res.status(503).json({ error: 'Registry availability could not be refreshed' })
+    catalog = await getRegistryCatalog()
+  } catch (error) {
+    console.error('Registry refresh failed:', error?.message || 'Unknown error')
+    catalog = savedCatalog()
   }
+
+  const etag = catalog.version !== undefined && catalog.checkedAt === undefined ? `"saved-${catalog.version}"` : `"${catalog.version}"`
+  res.setHeader('Cache-Control', `public, max-age=0, s-maxage=${catalog.checkedAt ? REFRESH_SECONDS : 60}, stale-while-revalidate=60`)
+  res.setHeader('ETag', etag)
+  res.setHeader('X-Registry-Checked-At', catalog.checkedAt)
+  if (req.headers['if-none-match'] === etag) return res.status(304).end()
+  return res.status(200).json(catalog)
 }
