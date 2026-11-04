@@ -2,11 +2,9 @@ import { NextResponse } from 'next/server'
 import { COOKIE, verifyToken } from './lib/gate'
 
 export const config = {
-  // Everything except: Next's own assets, the unlock screen and the endpoint
-  // behind it (locking those would make the site impossible to enter), and
-  // the cron endpoint, which Vercel calls with no cookie and which already
-  // authenticates itself with CRON_SECRET.
-  matcher: ['/((?!_next/static|favicon.ico|robots.txt|unlock|api/unlock|api/cron).*)'],
+  // Keep the unlock screen, framework assets, and public identity icons usable
+  // before guest authentication. Cron endpoints authenticate themselves.
+  matcher: ['/((?!_next/static|favicon\\.(?:ico|svg)$|apple-touch-icon\\.png$|robots.txt|unlock|api/unlock|api/cron).*)'],
 }
 
 export async function middleware(req) {

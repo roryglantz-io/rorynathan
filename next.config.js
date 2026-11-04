@@ -5,6 +5,7 @@ const nextConfig = {
     // The optimizer fetches sources without the guest's signed cookie.
     unoptimized: Boolean(process.env.SITE_PASSWORD),
     qualities: [90],
+    remotePatterns: [{ protocol: 'https', hostname: 'slimages.macysassets.com', pathname: '/is/image/BLM/products/**' }],
   },
   async headers() {
     return [{

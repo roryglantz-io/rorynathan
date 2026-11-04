@@ -1,18 +1,16 @@
 import localFont from 'next/font/local'
 import '../styles/globals.css'
 
-const weddingFont = localFont({
-  src: [
-    { path: '../node_modules/@fontsource-variable/bitter/files/bitter-latin-wght-normal.woff2', weight: '100 900', style: 'normal' },
-    { path: '../node_modules/@fontsource-variable/bitter/files/bitter-latin-wght-italic.woff2', weight: '100 900', style: 'italic' },
-  ],
+const serif = localFont({
+  src: '../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2',
+  weight: '100 900',
   display: 'swap',
   fallback: ['Georgia'],
 })
 
-const namesFont = localFont({
-  src: '../node_modules/@fontsource-variable/dancing-script/files/dancing-script-latin-wght-normal.woff2',
-  weight: '400 700',
+const script = localFont({
+  src: '../node_modules/@fontsource/alex-brush/files/alex-brush-latin-400-normal.woff2',
+  weight: '400',
   display: 'swap',
   fallback: ['Georgia'],
 })
@@ -22,9 +20,8 @@ export default function App({ Component, pageProps }) {
     <>
       <style jsx global>{`
         :root {
-          --display: ${weddingFont.style.fontFamily};
-          --text: ${weddingFont.style.fontFamily};
-          --names: ${namesFont.style.fontFamily};
+          --font-family: ${serif.style.fontFamily};
+          --font-script: ${script.style.fontFamily};
         }
       `}</style>
       <Component {...pageProps} />

@@ -4,68 +4,48 @@ import Layout from '../components/Layout'
 import config from '../lib/config'
 
 export default function Home() {
-  const { proposal, portrait, together, wide, laughing } = config.photos
   const calendarDate = config.weddingDate.slice(0, 10)
-  const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: 'America/New_York' }).format(config.weddingDateObj)
+  const [year, month, day] = calendarDate.split('-')
+  const { proposal, portrait, together, sunset } = config.photos
 
   return (
     <Layout>
-      <section className="opening" aria-labelledby="couple-names">
-        <div className="opening__masthead">
-          <p>We’re getting married</p>
-          <h1 id="couple-names">{config.couple.partnerOne} <span>&amp;</span> {config.couple.partnerTwo}</h1>
-          <div className="opening__date">
-            <p><time dateTime={calendarDate}>{config.weddingDateLabel}</time></p>
-            <p>{config.location}</p>
-          </div>
-        </div>
-
-        <div className="photo-stack" aria-label="Our engagement">
-          <figure className="photo-stack__photo photo-stack__photo--left">
-            <Image src={laughing.src} alt={laughing.alt} fill sizes="(max-width: 760px) 36vw, (min-width: 1268px) 391px, 32vw" quality={90} priority />
-          </figure>
-          <figure className="photo-stack__photo photo-stack__photo--right">
-            <Image src={together.src} alt={together.alt} fill sizes="(max-width: 760px) 36vw, (min-width: 1268px) 391px, 32vw" quality={90} priority />
-          </figure>
-          <figure className="photo-stack__photo photo-stack__photo--center">
-            <Image src={proposal.src} alt={proposal.alt} fill sizes="(max-width: 760px) 48vw, (min-width: 1268px) 501px, 41vw" quality={90} priority />
-          </figure>
-        </div>
-        <a href="#save-the-date" className="opening__scroll">A little more below <span aria-hidden="true">↓</span></a>
-      </section>
-
-      <section className="date-story" id="save-the-date" aria-labelledby="date-story-title">
-        <div className="date-story__intro">
-          <p>Save the date</p>
-          <h2 id="date-story-title">We can’t wait<br />to celebrate with you.</h2>
-        </div>
-        <div className="date-story__composition">
-          <div className="date-story__side date-story__side--date">
-            <p className="date-story__full-date"><time dateTime={calendarDate}>{weekday},<br />{config.weddingDateLabel}</time></p>
-          </div>
-          <figure className="date-story__photo">
-            <div className="date-story__image">
-              <Image src={portrait.src} alt={portrait.alt} fill sizes="(max-width: 488px) calc(100vw - 48px), (max-width: 760px) 440px, (min-width: 1440px) 575px, 38vw" quality={90} />
-            </div>
-          </figure>
-          <div className="date-story__side date-story__side--place">
-            <p className="date-story__large">{config.place.city}</p>
-            <p>{config.place.state}</p>
-            <p className="date-story__note">The details are still coming together.<br />The date is yours to save.</p>
-            <Link href="/details" className="text-link">Wedding details</Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="closing" aria-labelledby="closing-title">
-        <figure className="closing__photo">
-          <Image src={wide.src} alt={wide.alt} fill sizes="(max-width: 760px) 94vw, (min-width: 1440px) 780px, 60vw" quality={90} />
+      <section className="invitation" aria-labelledby="couple-names">
+        <h1 id="couple-names" className="sr-only">{config.coupleNames} wedding</h1>
+        <header className="invitation__masthead">
+          <p className="invitation__title">Save <span>the</span> Date</p>
+          <p className="invitation__names">{config.coupleNames}</p>
+          <time dateTime={calendarDate}>{month}.{day}.{year}</time>
+          <p className="invitation__place">{config.location.toUpperCase()}</p>
+        </header>
+        <figure className="invitation__photo">
+          <Image src={proposal.src} alt={proposal.alt} fill sizes="(max-width: 760px) calc(100vw - 48px), (min-width: 1296px) 760px, 60vw" quality={90} priority />
         </figure>
-        <div className="closing__copy">
-          <h2 id="closing-title">With love,<br />{config.coupleNames}</h2>
-          <p>More to come. For now, we’re just happy you’re here.</p>
-          <Link href="/registry" className="text-link">Our registry</Link>
+      </section>
+
+      <section className="home-details" aria-label="Wedding details and registry">
+        <div className="home-details__column">
+          <p className="home-details__label">Details</p>
+          <p>We’re still finalizing the details.<br />We’ll share more here soon.</p>
+          <Link href="/details" className="home-details__link">View details</Link>
         </div>
+        <figure className="home-details__photo">
+          <Image src={sunset.src} alt={sunset.alt} fill sizes="(max-width: 760px) calc(100vw - 48px), 360px" quality={90} />
+        </figure>
+        <div className="home-details__column">
+          <p className="home-details__label">Registry</p>
+          <p>Our registry is at Bloomingdale’s.</p>
+          <Link href="/registry" className="home-details__link">View registry</Link>
+        </div>
+      </section>
+
+      <section className="home-gallery" aria-label="Engagement photographs">
+        <figure>
+          <Image src={portrait.src} alt={portrait.alt} fill sizes="(max-width: 760px) 100vw, 50vw" quality={90} />
+        </figure>
+        <figure>
+          <Image src={together.src} alt={together.alt} fill sizes="(max-width: 760px) 100vw, 50vw" quality={90} />
+        </figure>
       </section>
     </Layout>
   )

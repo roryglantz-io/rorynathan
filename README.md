@@ -87,18 +87,40 @@ The middleware also gates optimizer URLs, including previously cached derivative
 
 ## Design
 
-The interface stays black and white; the engagement photographs retain their original colors.
+The palette and type come from Rory and Nathan’s printed save-the-date: warm sand,
+soft ivory, and crisp white type.
 
-- **Dancing Script**, weight 700, gives the couple’s names a bold, calligraphic wedding style.
-- **Bitter**, weights 400–600, keeps headings, dates, navigation, and body text readable.
-- Both fonts use bundled Latin WOFF2 files through `next/font/local`; visitors make no Google Fonts requests.
-- Three overlapping photographs open the page. A bounded sticky portrait anchors the desktop date section.
-- Mobile and touch layouts use normal document flow. Logo hearts appear on hover or keyboard focus.
-- Reduced-motion settings remove the heart movement.
+- **Fraunces** is the only serif family: letter-spaced uppercase display, dates,
+  navigation, and body text all use it with a small set of weights.
+- **Alex Brush** is the only script accent, used for the word “the.”
+- Both fonts are bundled from `@fontsource-variable/fraunces` and
+  `@fontsource/alex-brush` through `next/font/local`. No Google Fonts requests.
+- The homepage reproduces the save-the-date hierarchy: `SAVE the DATE`, the couple’s
+  names, `06.06.2027`, and `PHILADELPHIA, PA` above the proposal photograph.
+- The rest of the page uses the same type and palette for Details and Registry,
+  followed by two engagement photographs. No announcement slogans.
+- The RN favicon uses Fraunces glyph outlines on the sand color. SVG, 16/32/48px ICO,
+  and 180px Apple formats are included.
 
-The photos come from the downloaded originals, not Drive thumbnails. Portraits use 2000 × 2500 crops;
-the wide photo uses a 3200px source. Files omit source metadata and use responsive `next/image` delivery.
-Each named photo in `lib/config.js` keeps its source path with its alternative text.
+Photographs come from the downloaded originals. The invitation portrait is a
+2000 × 2500 crop of `_ORY4538.jpg`; other images are 1800–2400px derivatives at quality 94–95.
+Responsive `next/image` delivery uses quality 90, and exported files omit source metadata.
+
+## Registry
+
+The registry page displays the complete Bloomingdale’s registry (62 products when
+last checked), including prices, photographs, purchased quantities, and availability.
+The data comes from Bloomingdale’s public registry endpoint, not a Firecrawl dependency.
+
+`lib/registry.js` fetches the public registry configuration, combines registry
+quantities with product availability, and hashes the normalized products. `pages/api/registry.js`
+serves the result with a one-hour cache and ETag; the page polls hourly and refreshes on focus.
+No timestamp is shown. The saved `lib/registry-catalog.json` is the build-time fallback.
+Purchase links return guests to the Bloomingdale’s registry so registry credit is preserved.
+
+Adding to the Bloomingdale’s bag from this site is not implemented: Bloomingdale’s
+cross-origin policy does not allow bag requests from another domain, and a server-side
+request would create the server’s bag rather than the guest’s.
 
 ---
 
@@ -154,9 +176,9 @@ seats you've held for them.
 
 | Route | What it is |
 |---|---|
-| `/` | Engagement photographs, confirmed date and location |
+| `/` | Save-the-date invitation, Details and Registry links, engagement photos |
 | `/details` | Known date/location and a finalizing-details note |
-| `/registry` | Bloomingdale’s registry link |
+| `/registry` | Complete synced Bloomingdale’s registry and purchase links |
 | `/rsvp` | Retained RSVP form, hidden from public navigation |
 | `/unlock` | Password prompt, when `SITE_PASSWORD` is set |
 | `/admin` | **Private.** Head count, meal totals, dietary notes, CSV export, who hasn't replied, save-the-date sending |

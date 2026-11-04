@@ -36,12 +36,8 @@ export default function Layout({ children, title, description }) {
         <div className="nav__inner">
           <Link href="/" className="nav__brand" onClick={() => setOpen(false)}>
             <span className="sr-only">{config.coupleNames} home</span>
-            <span className="brand-mark" aria-hidden="true">
-              {config.couple.partnerOne[0]}<span>&amp;</span>{config.couple.partnerTwo[0]}
-            </span>
-            <span className="brand-surprise" aria-hidden="true">
-              <span>♡</span><span>♡</span><span>♡</span>
-            </span>
+            <span className="brand-mark" aria-hidden="true">{config.couple.partnerOne[0]}&amp;{config.couple.partnerTwo[0]}</span>
+            <span className="brand-surprise" aria-hidden="true">♡</span>
           </Link>
 
           <button
@@ -52,7 +48,7 @@ export default function Layout({ children, title, description }) {
             aria-controls="main-navigation"
             aria-label={open ? 'Close menu' : 'Open menu'}
           >
-            {open ? '✕' : '☰'}
+            {open ? 'Close' : 'Menu'}
           </button>
 
           <nav id="main-navigation" className="nav__links" aria-label="Main navigation" data-open={open} onKeyDown={event => {
@@ -79,9 +75,11 @@ export default function Layout({ children, title, description }) {
       <main id="main-content" tabIndex={-1}>{children}</main>
 
       <footer className="footer">
-        <div className="footer__names">{config.coupleNames}</div>
-        <p>{config.weddingDateLabel}</p>
-        {!config.locationTbd && <p>{config.location}</p>}
+        <span className="footer__names">{config.coupleNames}</span>
+        <div className="footer__event">
+          <span>{config.weddingDateLabel}</span>
+          {!config.locationTbd && <span>{config.location}</span>}
+        </div>
         {config.couple.hashtag && <p>{config.couple.hashtag}</p>}
         {config.contactEmail && config.contactEmail !== 'hello@example.com' && (
           <p>Questions? <a href={`mailto:${config.contactEmail}`}>{config.contactEmail}</a></p>

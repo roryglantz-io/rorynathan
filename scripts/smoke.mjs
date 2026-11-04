@@ -17,6 +17,7 @@ server.stderr.on('data', chunk => { logs += chunk })
 
 const publicRoutes = ['/', '/details', '/registry']
 const registryUrl = 'https://www.bloomingdales.com/registry/Rory-Glantz-Nathan-Pedowitz/1918053'
+let homepagePhoto
 
 function textContent(html) {
   return html
@@ -47,6 +48,13 @@ try {
     assert(response.headers.get('x-robots-tag')?.split(/,\s*/).includes('noindex'), `${path}: indexing header missing`)
     const html = await response.text()
     assert(/<meta\b[^>]*name=["']robots["'][^>]*content=["'][^"']*\bnoindex\b/i.test(html), `${path}: noindex metadata missing`)
+    if (path === '/') {
+      const source = html.match(/<img\b[^>]*\bsrc=["']([^"']+)["']/i)?.[1]
+      assert(source, 'Homepage photograph missing')
+      const rendered = new URL(source.replace(/&amp;/g, '&'), baseUrl)
+      homepagePhoto = new URL(rendered.searchParams.get('url') || rendered.pathname, baseUrl)
+      assert.equal(homepagePhoto.origin, baseUrl, 'Photographs must use the site’s indexing protection')
+    }
 
     if ([...publicRoutes, '/rsvp'].includes(path)) {
       assert(/<h1\b/i.test(html), `${path}: missing main heading`)
@@ -57,7 +65,7 @@ try {
       assert(body, `${path}: missing page body`)
       const text = textContent(body)
       assert(text.includes('June 6, 2027'), `${path}: confirmed date missing`)
-      assert(text.includes('Penn Valley, PA'), `${path}: confirmed location missing`)
+      assert(text.includes('Philadelphia, PA'), `${path}: confirmed location missing`)
       assert(!/\b(?:to be announced|to be confirmed|TBD)\b/i.test(text), `${path}: placeholder details exposed`)
       assert(!/\b(?:schedule|ceremony|reception|dress code|shuttle|hotels|airports)\b/i.test(text), `${path}: unconfirmed event or travel details exposed`)
       assert(!pageLinks(body).some(link => new URL(link.href, baseUrl).pathname.replace(/\/$/, '') === '/rsvp'), `${path}: public RSVP link exposed`)
@@ -74,7 +82,14 @@ try {
     }
     console.log(`PASS ${path}: HTTP 200 and page assertions`)
   }
-  const imageResponse = await fetch(`${baseUrl}/photos/engagement-4538.webp`)
+  const registryResponse = await fetch(`${baseUrl}/api/registry`)
+  assert.equal(registryResponse.status, 200, 'Registry data unavailable')
+  const registryData = await registryResponse.json()
+  assert.equal(registryData.registryId, '1918053')
+  assert(registryData.products.length > 0 && new Set(registryData.products.map(product => product.id)).size === registryData.products.length, 'Registry products must be complete and distinct')
+  assert(registryData.products.every(product => product.registryUrl === registryUrl), 'Registry products must preserve the Bloomingdale’s registry destination')
+  assert(registryResponse.headers.get('etag'), 'Registry cache validation header missing')
+  const imageResponse = await fetch(homepagePhoto)
   assert.equal(imageResponse.status, 200, 'Engagement photo missing')
   assert(imageResponse.headers.get('x-robots-tag')?.includes('noimageindex'), 'Photo indexing directive missing')
   const missingResponse = await fetch(`${baseUrl}/not-a-wedding-page`)
