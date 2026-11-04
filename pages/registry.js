@@ -289,7 +289,7 @@ export default function Registry({ initialCatalog, initiallyFresh }) {
                             {priceFormatter.format(product.price)}
                           </p>
                         )}
-                        {fresh && <p className="registry-item__quantity">{product.purchased} of {product.requested} purchased · {product.remaining} still needed</p>}
+                        <p className="registry-item__quantity">{product.purchased} of {product.requested} purchased · {product.remaining} still needed</p>
                         {status && <p className="registry-item__status">{status}</p>}
                         {!gifted && (
                           <Link className="registry-item__shop" href={product.registryUrl} target="_blank" rel="noopener" referrerPolicy="origin">
