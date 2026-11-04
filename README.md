@@ -119,7 +119,6 @@ new tab with an origin referrer. Guests add the item to their bag on Bloomingdal
 Hosted refresh attempts currently receive HTTP 403 from Bloomingdale’s on Vercel and
 GitHub-hosted runners. Production therefore serves the saved catalog; automatic sync
 is not verified working. No timestamp or sync controls are shown.
-Purchase links return guests to the Bloomingdale’s registry so registry credit is preserved.
 
 Adding to the Bloomingdale’s bag from this site is not implemented: Bloomingdale’s
 cross-origin policy does not allow bag requests from another domain, and a server-side
