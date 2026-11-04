@@ -108,14 +108,15 @@ Responsive `next/image` delivery uses quality 90, and exported files omit source
 
 ## Registry
 
-The registry page displays the complete Bloomingdale’s registry (62 products when
-last checked), including prices, photographs, purchased quantities, and availability.
-The data comes from Bloomingdale’s public registry endpoint, not a Firecrawl dependency.
+The registry page displays the complete Bloomingdale’s registry, including prices,
+photographs, purchased quantities, and availability. The data comes from Bloomingdale’s
+public registry endpoint, not a Firecrawl dependency.
 
-`lib/registry.js` fetches the public registry configuration, combines registry
-quantities with product availability, and hashes the normalized products. `pages/api/registry.js`
-serves the result with a one-hour cache and ETag; the page polls hourly and refreshes on focus.
-No timestamp is shown. The saved `lib/registry-catalog.json` is the build-time fallback.
+`.github/workflows/sync-registry.yml` runs `scripts/sync-registry.js` every hour. That script
+reads Bloomingdale’s public registry configuration and product data, normalizes every item,
+and commits `lib/registry-catalog.json` only when products or quantities changed.
+`pages/api/registry.js` serves that published snapshot with a one-hour ETag cache, and the
+page refreshes hourly and on focus. No timestamp or sync controls are shown.
 Purchase links return guests to the Bloomingdale’s registry so registry credit is preserved.
 
 Adding to the Bloomingdale’s bag from this site is not implemented: Bloomingdale’s
