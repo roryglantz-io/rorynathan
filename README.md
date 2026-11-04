@@ -1,6 +1,6 @@
 # Wedding Website
 
-A Next.js wedding site for **Rory & Nathan**, June 6, 2027, in Penn Valley, PA.
+A Next.js wedding site for **Rory & Nathan**, June 6, 2027, in Philadelphia, PA.
 The public site contains engagement photographs, Details, and the Bloomingdale’s registry.
 
 The app lives at the repository root. Use Node.js 24.
@@ -87,22 +87,20 @@ The middleware also gates optimizer URLs, including previously cached derivative
 
 ## Design
 
-The palette and type come from Rory and Nathan’s printed save-the-date: warm sand,
-soft ivory, and crisp white type.
+The save-the-date supplies visual inspiration only: warm sand and ivory, a serif,
+and a restrained script accent. Its wording and printed-card layout are not copied.
 
-- **Fraunces** is the only serif family: letter-spaced uppercase display, dates,
-  navigation, and body text all use it with a small set of weights.
-- **Alex Brush** is the only script accent, used for the word “the.”
+- **Fraunces** currently serves the serif roles; **Alex Brush** serves the ampersand.
+  These are substitutes, not the requested Recoleta and Burgues Script. Exact font
+  integration requires the licensed webfont files, which are not in the checkout.
 - Both fonts are bundled from `@fontsource-variable/fraunces` and
   `@fontsource/alex-brush` through `next/font/local`. No Google Fonts requests.
-- The homepage reproduces the save-the-date hierarchy: `SAVE the DATE`, the couple’s
-  names, `06.06.2027`, and `PHILADELPHIA, PA` above the proposal photograph.
-- The rest of the page uses the same type and palette for Details and Registry,
-  followed by two engagement photographs. No announcement slogans.
+- The homepage shows the couple’s names, date, Philadelphia location, and a three-photo gallery.
+- Details and Registry use the same palette and serif family. No announcement slogans.
 - The RN favicon uses Fraunces glyph outlines on the sand color. SVG, 16/32/48px ICO,
   and 180px Apple formats are included.
 
-Photographs come from the downloaded originals. The invitation portrait is a
+Photographs come from the downloaded originals. The proposal portrait is a
 2000 × 2500 crop of `_ORY4538.jpg`; other images are 1800–2400px derivatives at quality 94–95.
 Responsive `next/image` delivery uses quality 90, and exported files omit source metadata.
 
@@ -112,11 +110,10 @@ The registry page displays the complete Bloomingdale’s registry, including pri
 photographs, purchased quantities, and availability. The data comes from Bloomingdale’s
 public registry endpoint, not a Firecrawl dependency.
 
-`lib/registry.js` fetches Bloomingdale’s public registry configuration and product data,
-normalizes every item, and hashes the products. `pages/api/registry.js` runs on Vercel Edge
-and caches the result for one hour with an ETag; the page refreshes hourly and on focus.
-No timestamp or sync controls are shown. The saved `lib/registry-catalog.json` is the
-fallback when a refresh is unavailable.
+`lib/registry.js` can read all registry products locally and hash their normalized data.
+Hosted refresh attempts currently receive HTTP 403 from Bloomingdale’s on Vercel and
+GitHub-hosted runners. Production therefore serves the saved catalog; automatic sync
+is not verified working. No timestamp or sync controls are shown.
 Purchase links return guests to the Bloomingdale’s registry so registry credit is preserved.
 
 Adding to the Bloomingdale’s bag from this site is not implemented: Bloomingdale’s
@@ -177,9 +174,9 @@ seats you've held for them.
 
 | Route | What it is |
 |---|---|
-| `/` | Save-the-date invitation, Details and Registry links, engagement photos |
+| `/` | Couple’s names, date/location, photo gallery, Details and Registry links |
 | `/details` | Known date/location and a finalizing-details note |
-| `/registry` | Complete synced Bloomingdale’s registry and purchase links |
+| `/registry` | Saved Bloomingdale’s catalog and registry links; hosted sync remains blocked |
 | `/rsvp` | Retained RSVP form, hidden from public navigation |
 | `/unlock` | Password prompt, when `SITE_PASSWORD` is set |
 | `/admin` | **Private.** Head count, meal totals, dietary notes, CSV export, who hasn't replied, save-the-date sending |
