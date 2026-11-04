@@ -1,0 +1,32 @@
+name: Sync registry
+
+on:
+  schedule:
+    - cron: '5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node scripts/sync-registry.js
+      - name: Commit changes
+        run: |
+          if git diff --quiet -- lib/registry-catalog.json; then
+            echo "Registry unchanged"
+            exit 0
+          fi
+          git config user.name "registry-sync"
+          git config user.email "registry-sync@users.noreply.github.com"
+          git add lib/registry-catalog.json
+          git commit -m "Sync wedding registry"
+          git push
