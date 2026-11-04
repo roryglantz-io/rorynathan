@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import useSWR from 'swr'
@@ -79,8 +79,9 @@ export default function Registry({ initialCatalog, initiallyFresh }) {
   const [priceError, setPriceError] = useState('')
   const [sort, setSort] = useState('recent')
   const [perPage, setPerPage] = useState(20)
-  const [page, setPage] = useState(1)
+  const [visibleCount, setVisibleCount] = useState(20)
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const sentinelRef = useRef(null)
 
   useEffect(() => {
     const remaining = Date.parse(catalog.checkedAt) + FRESHNESS_MS - Date.now()
@@ -92,17 +93,17 @@ export default function Registry({ initialCatalog, initiallyFresh }) {
 
   function toggleCategory(category) {
     setCategories(list => list.includes(category) ? list.filter(item => item !== category) : [...list, category])
-    setPage(1)
+    setVisibleCount(perPage)
   }
 
   function toggleStatus(status) {
     setStatuses(list => list.includes(status) ? list.filter(item => item !== status) : [...list, status])
-    setPage(1)
+    setVisibleCount(perPage)
   }
 
   function choosePrice(range) {
     setPriceRange(range)
-    setPage(1)
+    setVisibleCount(perPage)
   }
 
   function applyCustomRange(event) {
@@ -121,7 +122,7 @@ export default function Registry({ initialCatalog, initiallyFresh }) {
     setAppliedMin(min)
     setAppliedMax(max)
     setPriceRange('custom')
-    setPage(1)
+    setVisibleCount(perPage)
   }
 
   function clearFilters() {
@@ -135,7 +136,7 @@ export default function Registry({ initialCatalog, initiallyFresh }) {
     setPriceError('')
     setSort('recent')
     setPerPage(20)
-    setPage(1)
+    setVisibleCount(20)
   }
 
   const filtered = useMemo(() => {
@@ -157,10 +158,20 @@ export default function Registry({ initialCatalog, initiallyFresh }) {
     return filteredProducts
   }, [catalog.products, categories, statuses, priceRange, appliedMin, appliedMax, sort])
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / perPage))
-  const currentPage = Math.min(page, pageCount)
-  const visible = filtered.slice((currentPage - 1) * perPage, currentPage * perPage)
+  const visible = filtered.slice(0, visibleCount)
   const activeFilterCount = categories.length + statuses.length + (priceRange === 'all' ? 0 : 1)
+
+  useEffect(() => {
+    const node = sentinelRef.current
+    if (!node || visibleCount >= filtered.length) return
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        setVisibleCount(count => Math.min(count + perPage, filtered.length))
+      }
+    }, { rootMargin: '600px 0px' })
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [visibleCount, filtered.length, perPage])
 
   return (
     <Layout title="Registry" description={`Registry for ${config.coupleNames}.`}>
@@ -239,7 +250,7 @@ export default function Registry({ initialCatalog, initiallyFresh }) {
               <div className="registry-toolbar__controls">
                 <label>
                   Sort
-                  <select value={sort} onChange={event => { setSort(event.target.value); setPage(1) }}>
+                  <select value={sort} onChange={event => { setSort(event.target.value); setVisibleCount(perPage) }}>
                     <option value="recent">Recently added</option>
                     <option value="price-low">Price (low–high)</option>
                     <option value="price-high">Price (high–low)</option>
@@ -247,7 +258,7 @@ export default function Registry({ initialCatalog, initiallyFresh }) {
                 </label>
                 <label>
                   Show
-                  <select value={perPage} onChange={event => { setPerPage(Number(event.target.value)); setPage(1) }}>
+                  <select value={perPage} onChange={event => { const next = Number(event.target.value); setPerPage(next); setVisibleCount(next) }}>
                     <option value={20}>20</option>
                     <option value={40}>40</option>
                   </select>
@@ -264,13 +275,13 @@ export default function Registry({ initialCatalog, initiallyFresh }) {
                   return (
                     <li className="registry-item" key={product.id}>
                       <figure className="registry-item__image">
-                        <Link href={product.productUrl} target="_blank" rel="noopener" referrerPolicy="origin" aria-label={`Shop ${product.name} at Bloomingdale’s (opens in a new tab)`}>
+                        <Link href={product.registryUrl} target="_blank" rel="noopener" referrerPolicy="origin" aria-label={`Shop for ${product.name} in our Bloomingdale’s registry (opens in a new tab)`}>
                           <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 360px) calc(100vw - 48px), (max-width: 760px) calc(50vw - 32px), (max-width: 1000px) calc(50vw - 60px), (max-width: 1500px) 250px, 300px" quality={90} />
                         </Link>
                       </figure>
                       <div className="registry-item__copy">
                         {product.brand && <p className="registry-item__brand">{product.brand}</p>}
-                        <h2 className="registry-item__title"><Link href={product.productUrl} target="_blank" rel="noopener" referrerPolicy="origin">{product.name}</Link></h2>
+                        <h2 className="registry-item__title"><Link href={product.registryUrl} target="_blank" rel="noopener" referrerPolicy="origin">{product.name}</Link></h2>
                         {product.price !== null && (
                           <p className="registry-item__price">
                             {product.originalPrice > product.price && <><span className="sr-only">Original price: </span><s>{priceFormatter.format(product.originalPrice)}</s>{' '}</>}
@@ -278,10 +289,10 @@ export default function Registry({ initialCatalog, initiallyFresh }) {
                             {priceFormatter.format(product.price)}
                           </p>
                         )}
-                        {fresh && product.purchased > 0 && <p className="registry-item__quantity">{product.purchased} of {product.requested} purchased</p>}
+                        {fresh && <p className="registry-item__quantity">{product.purchased} of {product.requested} purchased · {product.remaining} still needed</p>}
                         {status && <p className="registry-item__status">{status}</p>}
                         {!gifted && (
-                          <Link className="registry-item__shop" href={product.productUrl} target="_blank" rel="noopener" referrerPolicy="origin">
+                          <Link className="registry-item__shop" href={product.registryUrl} target="_blank" rel="noopener" referrerPolicy="origin">
                             Shop this gift<span className="sr-only"> at Bloomingdale’s (opens in a new tab)</span>
                           </Link>
                         )}
@@ -294,12 +305,12 @@ export default function Registry({ initialCatalog, initiallyFresh }) {
               <p className="registry-empty">No gifts match these filters.</p>
             )}
 
-            {pageCount > 1 && (
-              <nav className="registry-pagination" aria-label="Registry pages">
-                <button type="button" onClick={() => setPage(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
-                <span>Page {currentPage} of {pageCount}</span>
-                <button type="button" onClick={() => setPage(currentPage + 1)} disabled={currentPage === pageCount}>Next</button>
-              </nav>
+            {visibleCount < filtered.length && (
+              <div className="registry-load-more">
+                <button ref={sentinelRef} type="button" onClick={() => setVisibleCount(count => Math.min(count + perPage, filtered.length))}>
+                  Load more
+                </button>
+              </div>
             )}
           </div>
         </div>

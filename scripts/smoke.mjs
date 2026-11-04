@@ -76,9 +76,9 @@ try {
       for (const label of ['Category', 'Status', 'Price', 'Dining & Serveware', 'Purchased', 'Still needed', 'Unavailable', 'Custom range', 'Recently added']) {
         assert(text.includes(label), `Registry: ${label} control missing`)
       }
-      const productLinks = pageLinks(html).filter(item => item.href.startsWith('https://www.bloomingdales.com/shop/product/'))
-      assert(productLinks.length > 0, 'Registry: product-page links missing')
-      assert(productLinks.every(link => /\btarget=["']_blank["']/i.test(link.attributes) && /\brel=["'][^"']*\bnoopener\b[^"']*["']/i.test(link.attributes) && /\breferrerpolicy=["']origin["']/i.test(link.attributes)), 'Registry: product links need a new tab, opener protection, and an origin referrer')
+      const productLinks = pageLinks(html).filter(item => item.href === registryUrl)
+      assert(productLinks.length > 0, 'Registry: purchase links missing')
+      assert(productLinks.every(link => /\btarget=["']_blank["']/i.test(link.attributes) && /\brel=["'][^"']*\bnoopener\b[^"']*["']/i.test(link.attributes) && /\breferrerpolicy=["']origin["']/i.test(link.attributes)), 'Registry: purchase links need a new tab, opener protection, and an origin referrer')
       assert(!/<iframe\b/i.test(html), 'Registry: unsupported embedded registry exposed')
     }
     console.log(`PASS ${path}: HTTP 200 and page assertions`)
