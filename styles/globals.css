@@ -209,6 +209,7 @@ main { min-height: calc(100svh - 220px); }
 .registry-item__quantity, .registry-item__status { margin: 7px 0 0; color: var(--ink-soft); font-size: 15px; }
 .registry-item__shop { display: inline-block; margin-top: 14px; padding: 10px 18px; border: 1px solid var(--ink); background: var(--ink); color: var(--bg); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; text-decoration: none; }
 .registry-item__shop:hover { background: var(--bg); color: var(--ink); }
+.registry-item__shop--fulfilled { border-color: var(--rule); background: transparent; color: var(--ink-faint); cursor: default; }
 .registry-empty { padding: 40px 0; color: var(--ink-soft); }
 .registry-load-more { display: flex; justify-content: center; margin-top: 64px; }
 .registry-load-more button { padding: 12px 28px; border: 1px solid var(--ink); background: transparent; color: var(--ink); font: inherit; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }

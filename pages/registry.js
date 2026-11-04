@@ -269,19 +269,23 @@ export default function Registry({ initialCatalog, initiallyFresh }) {
             {visible.length > 0 ? (
               <ul className="registry-grid">
                 {visible.map(product => {
-                  const gifted = fresh && isPurchased(product)
-                  const status = !fresh ? null : gifted ? 'Purchased' : product.available === false ? 'Unavailable' : product.fulfillmentChannel === 'ORDR' ? 'On order' : product.lowStock ? 'Limited-time availability' : null
+                  const gifted = isPurchased(product)
+                  const status = gifted ? 'Purchased' : !fresh ? null : product.available === false ? 'Unavailable' : product.fulfillmentChannel === 'ORDR' ? 'On order' : product.lowStock ? 'Limited-time availability' : null
 
                   return (
                     <li className="registry-item" key={product.id}>
                       <figure className="registry-item__image">
-                        <Link href={product.registryUrl} target="_blank" rel="noopener" referrerPolicy="origin" aria-label={`Shop for ${product.name} in our Bloomingdale’s registry (opens in a new tab)`}>
+                        {gifted ? (
                           <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 360px) calc(100vw - 48px), (max-width: 760px) calc(50vw - 32px), (max-width: 1000px) calc(50vw - 60px), (max-width: 1500px) 250px, 300px" quality={90} />
-                        </Link>
+                        ) : (
+                          <Link href={product.registryUrl} target="_blank" rel="noopener" referrerPolicy="origin" aria-label={`Shop for ${product.name} in our Bloomingdale’s registry (opens in a new tab)`}>
+                            <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 360px) calc(100vw - 48px), (max-width: 760px) calc(50vw - 32px), (max-width: 1000px) calc(50vw - 60px), (max-width: 1500px) 250px, 300px" quality={90} />
+                          </Link>
+                        )}
                       </figure>
                       <div className="registry-item__copy">
                         {product.brand && <p className="registry-item__brand">{product.brand}</p>}
-                        <h2 className="registry-item__title"><Link href={product.registryUrl} target="_blank" rel="noopener" referrerPolicy="origin">{product.name}</Link></h2>
+                        <h2 className="registry-item__title">{gifted ? product.name : <Link href={product.registryUrl} target="_blank" rel="noopener" referrerPolicy="origin">{product.name}</Link>}</h2>
                         {product.price !== null && (
                           <p className="registry-item__price">
                             {product.originalPrice > product.price && <><span className="sr-only">Original price: </span><s>{priceFormatter.format(product.originalPrice)}</s>{' '}</>}
@@ -291,7 +295,9 @@ export default function Registry({ initialCatalog, initiallyFresh }) {
                         )}
                         <p className="registry-item__quantity">{product.purchased} of {product.requested} purchased · {product.remaining} still needed</p>
                         {status && <p className="registry-item__status">{status}</p>}
-                        {!gifted && (
+                        {gifted ? (
+                          <button type="button" className="registry-item__shop registry-item__shop--fulfilled" disabled>Fulfilled</button>
+                        ) : (
                           <Link className="registry-item__shop" href={product.registryUrl} target="_blank" rel="noopener" referrerPolicy="origin">
                             Shop this gift<span className="sr-only"> at Bloomingdale’s (opens in a new tab)</span>
                           </Link>
