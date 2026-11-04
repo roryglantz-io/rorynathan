@@ -41,9 +41,7 @@ export default function Home() {
           <Image src={sunset.src} alt={sunset.alt} fill sizes="(max-width: 468px) calc(100vw - 48px), (max-width: 760px) 420px, 360px" quality={90} />
         </figure>
         <div className="home-details__column">
-          <h2 className="home-details__label">Registry</h2>
-          <p>Bloomingdale’s</p>
-          <Link href="/registry" className="home-details__link">View registry</Link>
+          <h2 className="home-details__label"><Link href="/registry">Registry</Link></h2>
         </div>
       </section>
     </Layout>

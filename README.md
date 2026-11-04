@@ -109,6 +109,7 @@ Responsive `next/image` delivery uses quality 90, and exported files omit source
 The registry page displays the complete Bloomingdale’s registry, including prices,
 photographs, purchased quantities, and availability. The data comes from Bloomingdale’s
 public registry endpoint, not a Firecrawl dependency.
+The homepage uses a single Registry link. The catalog heading does not repeat the retailer name.
 
 `lib/registry.js` can read all registry products locally and hash their normalized data.
 Hosted refresh attempts currently receive HTTP 403 from Bloomingdale’s on Vercel and

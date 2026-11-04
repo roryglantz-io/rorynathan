@@ -167,8 +167,6 @@ main { min-height: calc(100svh - 220px); }
 .information-page__photo { position: relative; aspect-ratio: 3 / 4; max-height: 660px; }
 .information-page__photo img { object-fit: cover; }
 .information-page__photo--landscape { aspect-ratio: 3 / 2; }
-.registry-links { margin-top: 32px; }
-.registry-links a { font-size: 18px; }
 .page-heading { margin-bottom: 48px; }
 .page-heading h1 { font-size: clamp(48px, 6vw, 72px); }
 .page-heading__copy { margin-top: 24px; color: var(--ink-soft); }

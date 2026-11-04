@@ -36,14 +36,6 @@ export default function Registry({ initialCatalog, initiallyFresh }) {
       <section className="registry-catalogpage" aria-labelledby="registry-title">
         <header className="registry-catalogpage__heading">
           <h1 id="registry-title">Registry</h1>
-          <div className="registry-links">
-            {config.registry.links.map(item => (
-              <a className="text-link" href={item.url} target="_blank" rel="noopener noreferrer" key={item.url}>
-                {item.name}
-                <span className="sr-only"> registry (opens in a new tab)</span>
-              </a>
-            ))}
-          </div>
         </header>
         <ul className="registry-grid">
           {catalog.products.map(product => {

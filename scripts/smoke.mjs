@@ -73,7 +73,6 @@ try {
     if (path === '/registry') {
       const link = pageLinks(html).find(item => item.href === registryUrl)
       assert(link, 'Registry: confirmed Bloomingdale’s link missing')
-      assert(/Bloomingdale/i.test(link.text), 'Registry: link needs a descriptive accessible name')
       if (/\btarget=["']_blank["']/i.test(link.attributes)) {
         const rel = link.attributes.match(/\brel=(["'])(.*?)\1/i)?.[2].split(/\s+/) || []
         assert(rel.includes('noopener') && rel.includes('noreferrer'), 'Registry: new-tab link needs safe rel attributes')
