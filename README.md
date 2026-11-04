@@ -112,11 +112,11 @@ The registry page displays the complete Bloomingdale’s registry, including pri
 photographs, purchased quantities, and availability. The data comes from Bloomingdale’s
 public registry endpoint, not a Firecrawl dependency.
 
-`.github/workflows/sync-registry.yml` runs `scripts/sync-registry.js` every hour. That script
-reads Bloomingdale’s public registry configuration and product data, normalizes every item,
-and commits `lib/registry-catalog.json` only when products or quantities changed.
-`pages/api/registry.js` serves that published snapshot with a one-hour ETag cache, and the
-page refreshes hourly and on focus. No timestamp or sync controls are shown.
+`lib/registry.js` fetches Bloomingdale’s public registry configuration and product data,
+normalizes every item, and hashes the products. `pages/api/registry.js` runs on Vercel Edge
+and caches the result for one hour with an ETag; the page refreshes hourly and on focus.
+No timestamp or sync controls are shown. The saved `lib/registry-catalog.json` is the
+fallback when a refresh is unavailable.
 Purchase links return guests to the Bloomingdale’s registry so registry credit is preserved.
 
 Adding to the Bloomingdale’s bag from this site is not implemented: Bloomingdale’s
